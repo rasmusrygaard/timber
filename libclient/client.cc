@@ -54,6 +54,15 @@ Client::isConnected()
     return client != NULL;
 }
 
+ClientError translateErrorCode(const ErrorCode& serverError) {
+    switch (serverError) {
+    case KEY_NOT_FOUND_ERROR:
+        return ClientError::KEY_NOT_FOUND;
+    default:
+        return ClientError::MALFORMED_KEY;
+    }
+}
+
 bool
 Client::create(const std::string &path, const std::string &val)
 {
@@ -63,8 +72,13 @@ Client::create(const std::string &path, const std::string &val)
     args.val = val;
 
     auto r = client->create(args);
-
-    return *r;
+    if (r->discriminant() == 0) {
+        r->discriminant(0);
+        return r->value();
+    } else {
+        r->discriminant(1);
+        throw ClientException(translateErrorCode(r->errorCode()));
+    }
 }
 
 bool

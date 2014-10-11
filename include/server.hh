@@ -34,27 +34,27 @@ template<> struct xdr_traits<::kvpair>
 };
 }
 
-enum ServerError : std::uint32_t {
-  KEY_NOT_FOUND,
-  NO_PARENT,
-  HAS_CHILDREN,
-  MALFORMED_KEY,
+enum ErrorCode : std::uint32_t {
+  KEY_NOT_FOUND_ERROR,
+  NO_PARENT_ERROR,
+  HAS_CHILDREN_ERROR,
+  MALFORMED_KEY_ERROR,
 };
 namespace xdr {
-template<> struct xdr_traits<::ServerError>
-  : xdr_integral_base<::ServerError, std::uint32_t> {
+template<> struct xdr_traits<::ErrorCode>
+  : xdr_integral_base<::ErrorCode, std::uint32_t> {
   static constexpr bool is_enum = true;
   static constexpr bool is_numeric = false;
-  static const char *enum_name(::ServerError val) {
+  static const char *enum_name(::ErrorCode val) {
     switch (val) {
-    case ::KEY_NOT_FOUND:
-      return "KEY_NOT_FOUND";
-    case ::NO_PARENT:
-      return "NO_PARENT";
-    case ::HAS_CHILDREN:
-      return "HAS_CHILDREN";
-    case ::MALFORMED_KEY:
-      return "MALFORMED_KEY";
+    case ::KEY_NOT_FOUND_ERROR:
+      return "KEY_NOT_FOUND_ERROR";
+    case ::NO_PARENT_ERROR:
+      return "NO_PARENT_ERROR";
+    case ::HAS_CHILDREN_ERROR:
+      return "HAS_CHILDREN_ERROR";
+    case ::MALFORMED_KEY_ERROR:
+      return "MALFORMED_KEY_ERROR";
     default:
       return nullptr;
     }
@@ -66,8 +66,8 @@ struct MaybeBool {
 private:
   std::uint32_t discriminant_;
   union {
-    bool result_;
-    ServerError errorCode_;
+    bool value_;
+    ErrorCode errorCode_;
   };
 
 public:
@@ -82,7 +82,7 @@ public:
   _xdr_with_mem_ptr(_F &_f, std::uint32_t which, A&&...a) {
     switch (which) {
     case 0:
-      _f(&MaybeBool::result_, std::forward<A>(a)...);
+      _f(&MaybeBool::value_, std::forward<A>(a)...);
       return true;
     case 1:
       _f(&MaybeBool::errorCode_, std::forward<A>(a)...);
@@ -147,22 +147,22 @@ public:
     return *this;
   }
 
-  bool &result() {
+  bool &value() {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MaybeBool: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeBool: value accessed when not selected");
   }
-  const bool &result() const {
+  const bool &value() const {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MaybeBool: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeBool: value accessed when not selected");
   }
-  ServerError &errorCode() {
+  ErrorCode &errorCode() {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
     throw xdr::xdr_wrong_union("MaybeBool: errorCode accessed when not selected");
   }
-  const ServerError &errorCode() const {
+  const ErrorCode &errorCode() const {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
     throw xdr::xdr_wrong_union("MaybeBool: errorCode accessed when not selected");
@@ -178,7 +178,7 @@ template<> struct xdr_traits<::MaybeBool> : xdr_traits_base {
   using discriminant_type = decltype(std::declval<union_type>().discriminant());
 
   static constexpr const char *union_field_name(std::uint32_t which) {
-    return which == 0 ? "result"
+    return which == 0 ? "value"
       : which == 1 ? "errorCode"
       : nullptr;
   }
@@ -210,12 +210,12 @@ template<> struct xdr_traits<::MaybeBool> : xdr_traits_base {
 };
 }
 
-struct MabyeString {
+struct MaybeString {
 private:
   std::uint32_t discriminant_;
   union {
-    longstring result_;
-    ServerError errorCode_;
+    longstring value_;
+    ErrorCode errorCode_;
   };
 
 public:
@@ -230,10 +230,10 @@ public:
   _xdr_with_mem_ptr(_F &_f, std::uint32_t which, A&&...a) {
     switch (which) {
     case 0:
-      _f(&MabyeString::result_, std::forward<A>(a)...);
+      _f(&MaybeString::value_, std::forward<A>(a)...);
       return true;
     case 1:
-      _f(&MabyeString::errorCode_, std::forward<A>(a)...);
+      _f(&MaybeString::errorCode_, std::forward<A>(a)...);
       return true;
     default:
       return true;
@@ -244,43 +244,43 @@ public:
   void _xdr_discriminant(std::uint32_t which, bool validate = true) {
     int fnum = _xdr_field_number(which);
     if (fnum < 0 && validate)
-      throw xdr::xdr_bad_discriminant("bad value of discriminant in MabyeString");
+      throw xdr::xdr_bad_discriminant("bad value of discriminant in MaybeString");
     if (fnum != _xdr_field_number(discriminant_)) {
-      this->~MabyeString();
+      this->~MaybeString();
       discriminant_ = which;
       _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this);
     }
   }
-  MabyeString(std::uint32_t which = std::uint32_t{}) : discriminant_(which) {
+  MaybeString(std::uint32_t which = std::uint32_t{}) : discriminant_(which) {
     _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this);
   }
-  MabyeString(const MabyeString &source) : discriminant_(source.discriminant_) {
+  MaybeString(const MaybeString &source) : discriminant_(source.discriminant_) {
     _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this, source);
   }
-  MabyeString(MabyeString &&source) : discriminant_(source.discriminant_) {
+  MaybeString(MaybeString &&source) : discriminant_(source.discriminant_) {
     _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this,
                       std::move(source));
   }
-  ~MabyeString() { _xdr_with_mem_ptr(xdr::field_destructor, discriminant_, *this); }
-  MabyeString &operator=(const MabyeString &source) {
+  ~MaybeString() { _xdr_with_mem_ptr(xdr::field_destructor, discriminant_, *this); }
+  MaybeString &operator=(const MaybeString &source) {
     if (_xdr_field_number(discriminant_) 
         == _xdr_field_number(source.discriminant_))
       _xdr_with_mem_ptr(xdr::field_assigner, discriminant_, *this, source);
     else {
-      this->~MabyeString();
+      this->~MaybeString();
       discriminant_ = std::uint32_t(-1);
       _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this, source);
     }
     discriminant_ = source.discriminant_;
     return *this;
   }
-  MabyeString &operator=(MabyeString &&source) {
+  MaybeString &operator=(MaybeString &&source) {
     if (_xdr_field_number(discriminant_)
          == _xdr_field_number(source.discriminant_))
       _xdr_with_mem_ptr(xdr::field_assigner, discriminant_, *this,
                         std::move(source));
     else {
-      this->~MabyeString();
+      this->~MaybeString();
       discriminant_ = std::uint32_t(-1);
       _xdr_with_mem_ptr(xdr::field_constructor, discriminant_, *this,
                         std::move(source));
@@ -290,43 +290,43 @@ public:
   }
 
   std::uint32_t discriminant() const { return std::uint32_t(discriminant_); }
-  MabyeString &discriminant(unsigned _xdr_d, bool _xdr_validate = true) {
+  MaybeString &discriminant(unsigned _xdr_d, bool _xdr_validate = true) {
     _xdr_discriminant(_xdr_d, _xdr_validate);
     return *this;
   }
 
-  longstring &result() {
+  longstring &value() {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MabyeString: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeString: value accessed when not selected");
   }
-  const longstring &result() const {
+  const longstring &value() const {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MabyeString: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeString: value accessed when not selected");
   }
-  ServerError &errorCode() {
+  ErrorCode &errorCode() {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
-    throw xdr::xdr_wrong_union("MabyeString: errorCode accessed when not selected");
+    throw xdr::xdr_wrong_union("MaybeString: errorCode accessed when not selected");
   }
-  const ServerError &errorCode() const {
+  const ErrorCode &errorCode() const {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
-    throw xdr::xdr_wrong_union("MabyeString: errorCode accessed when not selected");
+    throw xdr::xdr_wrong_union("MaybeString: errorCode accessed when not selected");
   }
 };
 namespace xdr {
-template<> struct xdr_traits<::MabyeString> : xdr_traits_base {
+template<> struct xdr_traits<::MaybeString> : xdr_traits_base {
   static constexpr bool is_class = true;
   static constexpr bool is_union = true;
   static constexpr bool has_fixed_size = false;
 
-  using union_type = ::MabyeString;
+  using union_type = ::MaybeString;
   using discriminant_type = decltype(std::declval<union_type>().discriminant());
 
   static constexpr const char *union_field_name(std::uint32_t which) {
-    return which == 0 ? "result"
+    return which == 0 ? "value"
       : which == 1 ? "errorCode"
       : nullptr;
   }
@@ -334,21 +334,21 @@ template<> struct xdr_traits<::MabyeString> : xdr_traits_base {
     return union_field_name(u._xdr_discriminant());
   }
 
-  static std::size_t serial_size(const ::MabyeString &obj) {
+  static std::size_t serial_size(const ::MaybeString &obj) {
     std::size_t size = 0;
     if (!obj._xdr_with_mem_ptr(field_size, obj._xdr_discriminant(), obj, size))
-      throw xdr_bad_discriminant("bad value of discriminant in MabyeString");
+      throw xdr_bad_discriminant("bad value of discriminant in MaybeString");
     return size + 4;
   }
   template<typename Archive> static void
-  save(Archive &ar, const ::MabyeString &obj) {
+  save(Archive &ar, const ::MaybeString &obj) {
     xdr::archive(ar, obj.discriminant(), "discriminant");
     if (!obj._xdr_with_mem_ptr(field_archiver, obj.discriminant(), ar, obj,
                                union_field_name(obj)))
-      throw xdr_bad_discriminant("bad value of discriminant in MabyeString");
+      throw xdr_bad_discriminant("bad value of discriminant in MaybeString");
   }
   template<typename Archive> static void
-  load(Archive &ar, ::MabyeString &obj) {
+  load(Archive &ar, ::MaybeString &obj) {
     discriminant_type which;
     xdr::archive(ar, which, "discriminant");
     obj.discriminant(which);
@@ -362,8 +362,8 @@ struct MaybeSetString {
 private:
   std::uint32_t discriminant_;
   union {
-    xdr::xvector<longstring> result_;
-    ServerError errorCode_;
+    xdr::xvector<longstring> value_;
+    ErrorCode errorCode_;
   };
 
 public:
@@ -378,7 +378,7 @@ public:
   _xdr_with_mem_ptr(_F &_f, std::uint32_t which, A&&...a) {
     switch (which) {
     case 0:
-      _f(&MaybeSetString::result_, std::forward<A>(a)...);
+      _f(&MaybeSetString::value_, std::forward<A>(a)...);
       return true;
     case 1:
       _f(&MaybeSetString::errorCode_, std::forward<A>(a)...);
@@ -443,22 +443,22 @@ public:
     return *this;
   }
 
-  xdr::xvector<longstring> &result() {
+  xdr::xvector<longstring> &value() {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MaybeSetString: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeSetString: value accessed when not selected");
   }
-  const xdr::xvector<longstring> &result() const {
+  const xdr::xvector<longstring> &value() const {
     if (_xdr_field_number(discriminant_) == 1)
-      return result_;
-    throw xdr::xdr_wrong_union("MaybeSetString: result accessed when not selected");
+      return value_;
+    throw xdr::xdr_wrong_union("MaybeSetString: value accessed when not selected");
   }
-  ServerError &errorCode() {
+  ErrorCode &errorCode() {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
     throw xdr::xdr_wrong_union("MaybeSetString: errorCode accessed when not selected");
   }
-  const ServerError &errorCode() const {
+  const ErrorCode &errorCode() const {
     if (_xdr_field_number(discriminant_) == 2)
       return errorCode_;
     throw xdr::xdr_wrong_union("MaybeSetString: errorCode accessed when not selected");
@@ -474,7 +474,7 @@ template<> struct xdr_traits<::MaybeSetString> : xdr_traits_base {
   using discriminant_type = decltype(std::declval<union_type>().discriminant());
 
   static constexpr const char *union_field_name(std::uint32_t which) {
-    return which == 0 ? "result"
+    return which == 0 ? "value"
       : which == 1 ? "errorCode"
       : nullptr;
   }
@@ -606,8 +606,8 @@ struct api_v1 {
     static constexpr const char *proc_name = "list";
     using arg_type = longstring;
     using arg_wire_type = longstring;
-    using res_type = MavbeSetString;
-    using res_wire_type = MavbeSetString;
+    using res_type = MaybeSetString;
+    using res_wire_type = MaybeSetString;
     
     template<typename C, typename...A> static auto
     dispatch(C &&c, A &&...a) ->
