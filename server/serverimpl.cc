@@ -6,12 +6,20 @@
 
 #include "server/serverimpl.hh"
 
-bool validateKey(const std::string& key, ErrorCode& err) {
+bool keyIsValid(const std::string& key) {
     if (key.find('/') == std::string::npos) {
-        err = ErrorCode::MALFORMED_KEY_ERROR;
         return false;
     }
     return true;
+}
+
+bool
+api_v1_server::parentExists(const std::string& key) {
+    size_t lastSlash = key.find_last_of('/');
+    if (lastSlash == 0) return true;
+
+    std::string parentPath = key.substr(0, lastSlash - 1);
+    return db.hasKey(parentPath);
 }
 
 std::unique_ptr<MaybeBool>
@@ -24,12 +32,22 @@ api_v1_server::create(std::unique_ptr<kvpair> arg)
 
     // Fill in additional sanity checking (e.g. prevent malformed paths)
     ErrorCode err;
-    if (!validateKey(key, err)) {
+    bool success = false;
+    if (!keyIsValid(key)) {
+        std::cout << "Invalid key: " << key << std::endl;
+        err = ErrorCode::MALFORMED_KEY_ERROR;
+    } else if (!parentExists(key)) {
+        err = ErrorCode::NO_PARENT_ERROR;
+    } else {
+        success = true;
+    }
+    
+    if (!success) {
         res->discriminant(1);
         res->errorCode() = err;
         return res;
-    } 
-
+    }
+    
     res->discriminant(0);
     hasKey = db.hasKey(arg->key);
     if (hasKey) {

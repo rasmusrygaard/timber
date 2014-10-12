@@ -22,6 +22,7 @@ public:
   std::unique_ptr<MaybeString> get(std::unique_ptr<longstring> arg);
   std::unique_ptr<MaybeSetString> list(std::unique_ptr<longstring> arg);
 private:
+  bool parentExists(const std::string& key);
   ServerDB db;
 };
 
