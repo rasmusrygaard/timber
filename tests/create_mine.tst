@@ -1,0 +1,14 @@
+create foo 123
+create / 123
+create // 123
+create /// 123
+create //// 123
+create /foo/ 123
+create /foo 123
+create /foo/bar/ 123
+create /foo/bar// 123
+create /!!! 123
+create /foo! 123
+create /foo_bar_baz 123
+create /foo_123_bar 123
+create /foo____ 123
