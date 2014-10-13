@@ -7,16 +7,17 @@
 
 #include "server/serverimpl.hh"
 
-const int KEY_VALID      = 1 << 0;
-const int PARENT_EXISTS  = 1 << 1;
-const int KEY_EXISTS     = 1 << 2;
-const int NO_CHILDREN    = 1 << 3;
+const int KEY_VALID     = 1 << 0;
+const int PARENT_EXISTS = 1 << 1;
+const int KEY_EXISTS    = 1 << 2;
+const int NO_CHILDREN   = 1 << 3;
+const int ALLOW_ROOT    = 1 << 4;
 
-bool api_v1_server::keyIsValid(const std::string& key) {
+bool api_v1_server::keyIsValid(const std::string& key, const bool allowRoot = false) {
     size_t length = key.size();
 
     if (key.empty() || key[0] != '/') return false;
-    if (length == 1 && key[0] == '/') return false;
+    if (length == 1 && key[0] == '/') return allowRoot;
 
     for (size_t i = 1; i < length; ++i) {
         if (std::isalnum(key[i]) || key[i] == '_') {
@@ -42,8 +43,8 @@ api_v1_server::parentExists(const std::string& key) {
 }
 
 bool api_v1_server::validateKey(const std::string& key, const int flags, ErrorCode& err) {
-    bool success = true;
-    if ((flags & KEY_VALID) && !keyIsValid(key)) {
+    bool success = true;    
+    if ((flags & KEY_VALID) && !keyIsValid(key, flags & ALLOW_ROOT)) {
         std::cout << "Key: '" << key << "' is invalid." << std::endl;
         err = ErrorCode::MALFORMED_KEY_ERROR;
         success = false;
@@ -53,7 +54,7 @@ bool api_v1_server::validateKey(const std::string& key, const int flags, ErrorCo
         err = ErrorCode::NO_PARENT_ERROR;
         success = false;
     }
-    if (success && (flags & KEY_EXISTS) && !db.hasKey(key)) {
+    if (success && (flags & KEY_EXISTS) && key != "/" && !db.hasKey(key)) {
         std::cout << "Key: '" << key << "' does not exist." << std::endl;
         err = ErrorCode::KEY_NOT_FOUND_ERROR;
         success = false;
@@ -158,13 +159,19 @@ api_v1_server::get(std::unique_ptr<longstring> arg)
   return res;
 }
 
+std::string
+api_v1_server::stripDirectories(const std::string& path) {
+    size_t lastSlash = path.find_last_of('/');
+    return path.substr(lastSlash + 1);
+}
+
 std::unique_ptr<MaybeSetString>
 api_v1_server::list(std::unique_ptr<longstring> arg)
 {
   std::unique_ptr<MaybeSetString> res(new MaybeSetString);
   std::string key = (*arg);
 
-  int toCheck = KEY_VALID | KEY_EXISTS;
+  int toCheck = KEY_VALID | KEY_EXISTS | ALLOW_ROOT;
   ErrorCode err;
   if (!validateKey(key, toCheck, err)) {
       res->discriminant(1);
@@ -173,8 +180,10 @@ api_v1_server::list(std::unique_ptr<longstring> arg)
   }
 
   res->discriminant(0);
-  auto children = db.list(key);
-  std::copy(children.begin(), children.end(), res->value().begin());
+  auto children = db.list(key == "/" ? "" : key);
+  for (auto path : children) {      
+      res->value().push_back(stripDirectories(path));
+  }
   
   return res;
 }

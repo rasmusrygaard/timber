@@ -1,5 +1,5 @@
 TIME="3s" # amount of time to wait for server before communicating with it
-TESTS=(create create_mine getset getset_mine list_mine remove remove_mine) # filenames of tests to run
+TESTS=(create create_mine getset getset_mine list list_mine remove remove_mine) # filenames of tests to run
 TESTDIR="tests/" # directory containing tests
 SERVER="server/server" # path to server executable
 SHELL="shell/shell" #path to shell executable

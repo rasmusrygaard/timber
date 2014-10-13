@@ -12,6 +12,6 @@ remove /test/b
 list /test
 list /missing_key
 list /
-remove /test/b
+remove /test/a
 list /test
 list /
