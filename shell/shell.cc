@@ -1,4 +1,3 @@
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -46,97 +45,6 @@ Cmd_Echo(int argc, const char *argv[])
 }
 
 void
-Cmd_Create(int argc, const char *argv[])
-{
-    if (argc != 3) {
-        cout << "Usage: create PATH VALUE" << endl;
-        return;
-    }
-
-    try {
-        if (client.create(argv[1], argv[2]))
-            cout << "CREATED" << endl;
-        else
-            cout << "KEY ALREADY EXISTS" << endl;
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_Remove(int argc, const char *argv[])
-{
-    if (argc != 2) {
-        cout << "Usage: remove PATH" << endl;
-        return;
-    }
-
-    try {
-        if (client.remove(argv[1]))
-            cout << "REMOVED" << endl;
-        else
-            cout << "KEY NOT FOUND" << endl;
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_Set(int argc, const char *argv[])
-{
-    if (argc != 3) {
-        cout << "Usage: set PATH VALUE" << endl;
-        return;
-    }
-
-    try {
-        client.set(argv[1], argv[2]);
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_Get(int argc, const char *argv[])
-{
-    string result;
-
-    if (argc != 2) {
-        cout << "Usage: get PATH" << endl;
-        return;
-    }
-
-    try {
-        result = client.get(argv[1]);
-        cout << result << endl;
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-    }
-}
-
-void
-Cmd_List(int argc, const char *argv[])
-{
-    set<string> result;
-
-    if (argc != 2) {
-        cout << "Usage: list PATH" << endl;
-        return;
-    }
-
-    try {
-        result = client.list(argv[1]);
-    } catch (ClientException &e) {
-        cout << e.what() << endl;
-        return;
-    }
-
-    for (auto it = result.begin(); it != result.end(); it++) {
-        cout << (*it) << endl;
-    }
-}
-
-void
 DispatchCommand(char *buf)
 {
     int argc;
@@ -164,16 +72,6 @@ DispatchCommand(char *buf)
         Cmd_Echo(argc, (const char **)argv);
     } else if (cmd == "exit") {
         exit(0);
-    } else if (cmd == "create") {
-        Cmd_Create(argc, (const char **)argv);
-    } else if (cmd == "remove") {
-        Cmd_Remove(argc, (const char **)argv);
-    } else if (cmd == "get") {
-        Cmd_Get(argc, (const char **)argv);
-    } else if (cmd == "set") {
-        Cmd_Set(argc, (const char **)argv);
-    } else if (cmd == "list") {
-        Cmd_List(argc, (const char **)argv);
     } else if (cmd == "#") {
         // Ignore comments
     } else if (cmd != "") {
@@ -233,6 +131,7 @@ main(int argc, const char *argv[])
     // Either execute script or prompt
     try {
         if (argc == 2) {
+            cout << "Prompting" << endl;
             Prompt();
         } else {
             RunScript(argv[2]);
@@ -244,4 +143,3 @@ main(int argc, const char *argv[])
 
     return 0;
 }
-

@@ -1,17 +1,10 @@
-
 typedef string longstring<>;
 
-struct kvpair {
-	string key<512>;
-	string val<>;
-};
+enum RaftType { LogCabinType, GoRaftType };
 
 program server_api {
   version api_v1 {
-	bool create(kvpair) = 1;
-	bool remove(longstring) = 2;
-	bool set(kvpair) = 3;
-    // TODO: Fill me in
+	bool setup(RaftType) = 1;
   } = 1;
 } = 0x40048086;
 

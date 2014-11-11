@@ -1,4 +1,3 @@
-
 #include <unistd.h>
 #include <sys/socket.h>
 
@@ -55,43 +54,15 @@ Client::isConnected()
 }
 
 bool
-Client::create(const std::string &path, const std::string &val)
+Client::setup(const RaftImplementation& implementation)
 {
-    kvpair args;
+    RaftType type;
+    switch (implementation) {
+      case LogCabin: type = LogCabinType; break;
+      case GoRaft:   type = GoRaftType; break;
+    }
 
-    args.key = path;
-    args.val = val;
-
-    auto r = client->create(args);
+    auto r = client->setup(type);
 
     return *r;
 }
-
-bool
-Client::remove(const std::string &path)
-{
-    // TODO: Fill me in
-    return false;
-}
-
-std::string
-Client::get(const std::string &path)
-{
-    // TODO: Fill me in
-    return "";
-}
-
-void
-Client::set(const std::string &path, const std::string &val)
-{
-    // TODO: Fill me in
-}
-
-std::set<string>
-Client::list(const string &path)
-{
-    std::set<string> r;
-    // TODO: Fill me in
-    return r;
-}
-

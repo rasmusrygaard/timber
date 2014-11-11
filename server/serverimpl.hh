@@ -16,9 +16,7 @@ public:
   api_v1_server() : db("kvstore.db") { }
   ~api_v1_server() {}
 
-  std::unique_ptr<bool> create(std::unique_ptr<kvpair> arg);
-  std::unique_ptr<bool> remove(std::unique_ptr<longstring> arg);
-  std::unique_ptr<bool> set(std::unique_ptr<kvpair> arg);
+  std::unique_ptr<bool> setup(std::unique_ptr<RaftType> arg);
 private:
   ServerDB db;
 };
