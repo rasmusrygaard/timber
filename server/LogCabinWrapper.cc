@@ -10,7 +10,7 @@
 
 void
 LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
-  system((LOGCABIN_SCRIPTS_DIR + "/init.sh").c_str());
+  system((LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
   writeConfig(hosts);
 }
 

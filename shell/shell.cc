@@ -23,6 +23,7 @@ Client client;
 void
 Cmd_Help(int argc, const char *argv[])
 {
+    cout << "logcabin   Set up logcabin" << endl;
     cout << "create     Create a node" << endl;
     cout << "echo       Echo arguments" << endl;
     cout << "exit       Exit shell" << endl;
@@ -42,6 +43,12 @@ Cmd_Echo(int argc, const char *argv[])
         cout << argv[i] << " ";
     }
     cout << endl;
+}
+
+void
+Cmd_Logcabin(int argc, const char* argv[])
+{
+    client.setup(LogCabin);
 }
 
 void
@@ -72,6 +79,8 @@ DispatchCommand(char *buf)
         Cmd_Echo(argc, (const char **)argv);
     } else if (cmd == "exit") {
         exit(0);
+    } else if (cmd == "logcabin") {
+        Cmd_Logcabin(argc, (const char**)argv);
     } else if (cmd == "#") {
         // Ignore comments
     } else if (cmd != "") {

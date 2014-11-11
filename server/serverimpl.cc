@@ -11,7 +11,6 @@
 std::unique_ptr<bool>
 api_v1_server::setup(std::unique_ptr<RaftType> arg)
 {
-  bool hasKey;
   std::unique_ptr<bool> res(new bool);
   std::vector<std::string> hosts;
   LogCabinWrapper::initialize(hosts);
