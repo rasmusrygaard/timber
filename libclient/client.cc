@@ -62,6 +62,7 @@ Client::setup(const RaftImplementation& implementation)
       case GoRaft:   type = GoRaftType; break;
     }
 
+    std::cout << type << std::endl;
     auto r = client->setup(type);
 
     return *r;
