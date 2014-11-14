@@ -7,6 +7,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 
 #include <xdrpp/srpc.h>
 

@@ -9,7 +9,7 @@ if ! which protoc >/dev/null; then
   sudo make install
 fi
 cd ~
-if [ -d "logcabin" ]; then
+if [ ! -d "logcabin" ]; then
   git clone https://github.com/logcabin/logcabin.git
   cd logcabin
   git submodule update --init
