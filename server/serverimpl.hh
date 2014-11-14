@@ -13,21 +13,13 @@ class api_v1_server {
 public:
   using rpc_interface_type = api_v1;
 
-  api_v1_server() : db("kvstore.db") {
-      db.set("", "");
-  }
+  api_v1_server() : db("kvstore.db") { }
   ~api_v1_server() {}
 
-  std::unique_ptr<MaybeBool> create(std::unique_ptr<kvpair> arg);
-  std::unique_ptr<MaybeBool> remove(std::unique_ptr<longstring> arg);
-  std::unique_ptr<MaybeBool> set(std::unique_ptr<kvpair> arg);
-  std::unique_ptr<MaybeString> get(std::unique_ptr<longstring> arg);
-  std::unique_ptr<MaybeSetString> list(std::unique_ptr<longstring> arg);
+  std::unique_ptr<bool> create(std::unique_ptr<kvpair> arg);
+  std::unique_ptr<bool> remove(std::unique_ptr<longstring> arg);
+  std::unique_ptr<bool> set(std::unique_ptr<kvpair> arg);
 private:
-  bool parentExists(const std::string& key);
-  bool validateKey(const std::string& key, const int flags, ErrorCode& err);
-  bool keyIsValid(const std::string& key, const bool allowRoot);
-  std::string stripDirectories(const std::string& path);
   ServerDB db;
 };
 

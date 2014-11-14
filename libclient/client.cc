@@ -54,21 +54,6 @@ Client::isConnected()
     return client != NULL;
 }
 
-ClientError translateErrorCode(const ErrorCode& serverError) {
-    switch (serverError) {
-    case KEY_NOT_FOUND_ERROR:
-        return ClientError::KEY_NOT_FOUND;
-    case NO_PARENT_ERROR:
-        return ClientError::NO_PARENT;
-    case HAS_CHILDREN_ERROR:
-        return ClientError::HAS_CHILDREN;
-    case MALFORMED_KEY_ERROR:
-        return ClientError::MALFORMED_KEY;
-    default:
-        return ClientError::MALFORMED_KEY;
-    }
-}
-
 bool
 Client::create(const std::string &path, const std::string &val)
 {
@@ -78,63 +63,35 @@ Client::create(const std::string &path, const std::string &val)
     args.val = val;
 
     auto r = client->create(args);
-    if (r->discriminant() == 0) {
-        return r->value();
-    } else {
-        throw ClientException(translateErrorCode(r->errorCode()));
-    }
+
+    return *r;
 }
 
 bool
 Client::remove(const std::string &path)
 {
-    longstring key = path;
-    auto r = client->remove(key);
-    if (r->discriminant() == 0) {
-        return r->value();
-    } else {
-        throw ClientException(translateErrorCode(r->errorCode()));        
-    }
+    // TODO: Fill me in
+    return false;
 }
 
 std::string
 Client::get(const std::string &path)
 {
-    longstring key = path;
-    auto r = client->get(key);
-    if (r->discriminant() == 0) {
-        return r->value();
-    } else {
-        throw ClientException(translateErrorCode(r->errorCode()));        
-    }
+    // TODO: Fill me in
+    return "";
 }
 
 void
 Client::set(const std::string &path, const std::string &val)
 {
-    kvpair args;
-
-    args.key = path;
-    args.val = val;
-
-    auto r = client->set(args);
-    if (r->discriminant() == 1) {
-        throw ClientException(translateErrorCode(r->errorCode()));        
-    }
+    // TODO: Fill me in
 }
 
 std::set<string>
 Client::list(const string &path)
 {
-    std::set<string> res;
-    longstring key = path;
-    auto r = client->list(key);
-    if (r->discriminant() == 0) {
-        for (std::string s : r->value()) { res.insert(s); }
-    } else {
-        throw ClientException(translateErrorCode(r->errorCode()));
-    }
-
-    return res;
+    std::set<string> r;
+    // TODO: Fill me in
+    return r;
 }
 
