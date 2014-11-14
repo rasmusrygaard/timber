@@ -49,7 +49,11 @@ Cmd_Echo(int argc, const char *argv[])
 void
 Cmd_Logcabin(int argc, const char* argv[])
 {
-    client.setup(LogCabin);
+    std::vector<std::string> nodes;
+    for (int i = 1; i < argc; i++) {
+        nodes.push_back(argv[i]);
+    }
+    client.setup(LogCabin, nodes);
 }
 
 void

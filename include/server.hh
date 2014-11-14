@@ -31,6 +31,83 @@ template<> struct xdr_traits<::RaftType>
 };
 }
 
+using IPAddr = xdr::xstring<15>;
+
+struct IPList {
+  xdr::xvector<IPAddr> nodes{};
+};
+namespace xdr {
+template<> struct xdr_traits<::IPList>
+  : xdr_struct_base<field_ptr<::IPList,
+                              decltype(::IPList::nodes),
+                              &::IPList::nodes>> {
+  template<typename Archive> static void
+  save(Archive &ar, const ::IPList &obj) {
+    archive(ar, obj.nodes, "nodes");
+  }
+  template<typename Archive> static void
+  load(Archive &ar, ::IPList &obj) {
+    archive(ar, obj.nodes, "nodes");
+  }
+};
+}
+
+struct ClusterDesc {
+  RaftType type{};
+  IPList nodeList{};
+  std::int32_t nodeId{};
+};
+namespace xdr {
+template<> struct xdr_traits<::ClusterDesc>
+  : xdr_struct_base<field_ptr<::ClusterDesc,
+                              decltype(::ClusterDesc::type),
+                              &::ClusterDesc::type>,
+                    field_ptr<::ClusterDesc,
+                              decltype(::ClusterDesc::nodeList),
+                              &::ClusterDesc::nodeList>,
+                    field_ptr<::ClusterDesc,
+                              decltype(::ClusterDesc::nodeId),
+                              &::ClusterDesc::nodeId>> {
+  template<typename Archive> static void
+  save(Archive &ar, const ::ClusterDesc &obj) {
+    archive(ar, obj.type, "type");
+    archive(ar, obj.nodeList, "nodeList");
+    archive(ar, obj.nodeId, "nodeId");
+  }
+  template<typename Archive> static void
+  load(Archive &ar, ::ClusterDesc &obj) {
+    archive(ar, obj.type, "type");
+    archive(ar, obj.nodeList, "nodeList");
+    archive(ar, obj.nodeId, "nodeId");
+  }
+};
+}
+
+struct Partition {
+  xdr::xvector<std::int32_t> group1{};
+  xdr::xvector<std::int32_t> group2{};
+};
+namespace xdr {
+template<> struct xdr_traits<::Partition>
+  : xdr_struct_base<field_ptr<::Partition,
+                              decltype(::Partition::group1),
+                              &::Partition::group1>,
+                    field_ptr<::Partition,
+                              decltype(::Partition::group2),
+                              &::Partition::group2>> {
+  template<typename Archive> static void
+  save(Archive &ar, const ::Partition &obj) {
+    archive(ar, obj.group1, "group1");
+    archive(ar, obj.group2, "group2");
+  }
+  template<typename Archive> static void
+  load(Archive &ar, ::Partition &obj) {
+    archive(ar, obj.group1, "group1");
+    archive(ar, obj.group2, "group2");
+  }
+};
+}
+
 struct api_v1 {
   static constexpr std::uint32_t program = 1074036870;
   static constexpr const char *program_name = "server_api";
@@ -41,8 +118,8 @@ struct api_v1 {
     using interface_type = api_v1;
     static constexpr std::uint32_t proc = 1;
     static constexpr const char *proc_name = "setup";
-    using arg_type = RaftType;
-    using arg_wire_type = RaftType;
+    using arg_type = ClusterDesc;
+    using arg_wire_type = ClusterDesc;
     using res_type = bool;
     using res_wire_type = bool;
     
@@ -59,11 +136,61 @@ struct api_v1 {
     }
   };
 
+  struct makePartition_t {
+    using interface_type = api_v1;
+    static constexpr std::uint32_t proc = 2;
+    static constexpr const char *proc_name = "makePartition";
+    using arg_type = Partition;
+    using arg_wire_type = Partition;
+    using res_type = bool;
+    using res_wire_type = bool;
+    
+    template<typename C, typename...A> static auto
+    dispatch(C &&c, A &&...a) ->
+    decltype(c.makePartition(std::forward<A>(a)...)) {
+      return c.makePartition(std::forward<A>(a)...);
+    }
+    
+    template<typename C, typename DropIfVoid, typename...A> static auto
+    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
+    decltype(c.makePartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.makePartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    }
+  };
+
+  struct healPartition_t {
+    using interface_type = api_v1;
+    static constexpr std::uint32_t proc = 3;
+    static constexpr const char *proc_name = "healPartition";
+    using arg_type = void;
+    using arg_wire_type = xdr::xdr_void;
+    using res_type = bool;
+    using res_wire_type = bool;
+    
+    template<typename C, typename...A> static auto
+    dispatch(C &&c, A &&...a) ->
+    decltype(c.healPartition(std::forward<A>(a)...)) {
+      return c.healPartition(std::forward<A>(a)...);
+    }
+    
+    template<typename C, typename DropIfVoid, typename...A> static auto
+    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
+    decltype(c.healPartition(std::forward<A>(a)...)) {
+      return c.healPartition(std::forward<A>(a)...);
+    }
+  };
+
   template<typename T, typename...A> static bool
   call_dispatch(T &&t, std::uint32_t proc, A &&...a) {
     switch(proc) {
     case 1:
       t.template dispatch<setup_t>(std::forward<A>(a)...);
+      return true;
+    case 2:
+      t.template dispatch<makePartition_t>(std::forward<A>(a)...);
+      return true;
+    case 3:
+      t.template dispatch<healPartition_t>(std::forward<A>(a)...);
       return true;
     }
     return false;
@@ -76,6 +203,18 @@ struct api_v1 {
     setup(_XDRARGS &&..._xdr_args) ->
     decltype(this->_XDRBASE::template invoke<setup_t>(_xdr_args...)) {
       return this->_XDRBASE::template invoke<setup_t>(_xdr_args...);
+    }
+
+    template<typename..._XDRARGS> auto
+    makePartition(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<makePartition_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<makePartition_t>(_xdr_args...);
+    }
+
+    template<typename..._XDRARGS> auto
+    healPartition(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<healPartition_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<healPartition_t>(_xdr_args...);
     }
   };
 };

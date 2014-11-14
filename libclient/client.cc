@@ -54,16 +54,31 @@ Client::isConnected()
 }
 
 bool
-Client::setup(const RaftImplementation& implementation)
+Client::setup(const RaftImplementation& implementation, std::vector<std::string> nodeAddrs)
 {
     RaftType type;
     switch (implementation) {
       case LogCabin: type = LogCabinType; break;
       case GoRaft:   type = GoRaftType; break;
     }
-
     std::cout << type << std::endl;
-    auto r = client->setup(type);
 
-    return *r;
+    IPList list;
+    for (auto node : nodeAddrs) {
+        list.nodes.push_back(node);
+    }
+
+    for (size_t i = 0; i < nodeAddrs.size(); i++) {
+        ClusterDesc cluster;
+        cluster.type = type;
+        cluster.nodeList = list;
+        cluster.nodeId = i;
+        auto r = client->setup(cluster);
+        if (*r == false) {
+            //TODO: cleanup?
+            return false;
+        }
+    }
+
+    return true;
 }

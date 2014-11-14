@@ -4,6 +4,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 
 enum ClientError {
     /*
@@ -78,7 +79,7 @@ public:
      *
      * Return Value: true if key was created, false if key already exists
      */
-    bool setup(const RaftImplementation& implementation);
+    bool setup(const RaftImplementation& implementation, std::vector<std::string> nodeAddrs);
 private:
     xdr::srpc_client<api_v1> *client;
 };
