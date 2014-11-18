@@ -10,7 +10,8 @@ struct IPList {
 
 struct ClusterDesc {
 	RaftType type;
-	IPList nodeList;
+	IPList public_ips;
+        IPList private_ips;
 	int nodeId;
 };
 
@@ -26,4 +27,3 @@ program server_api {
 	bool healPartition(void) = 3;
   } = 1;
 } = 0x40048086;
-

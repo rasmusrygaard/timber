@@ -12,12 +12,11 @@ api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
 {
   std::unique_ptr<bool> res(new bool);
 
-
   LogCabinWrapper logCabin;
-  auto nodes = arg->nodeList.nodes;
+  auto private_ips = arg->private_ips.nodes;
   std::vector<std::string> nodeList;
   std::ofstream f("/etc/hosts");
-  for (auto addr : nodes) {
+  for (auto addr : private_ips) {
 	  f << addr + " logcabin" << std::endl;
 	  nodeList.push_back(addr);
   }

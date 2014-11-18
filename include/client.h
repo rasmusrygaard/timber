@@ -1,10 +1,15 @@
-
 #ifndef __CLIENT_H__
 #define __CLIENT_H__
 
 #include <set>
 #include <string>
 #include <vector>
+
+struct Node {
+    std::string id;
+    std::string public_ip;
+    std::string private_ip;
+};
 
 enum ClientError {
     /*
@@ -79,10 +84,9 @@ public:
      *
      * Return Value: true if key was created, false if key already exists
      */
-    bool setup(const RaftImplementation& implementation, std::vector<std::string> nodeAddrs);
+    bool setup(const RaftImplementation& implementation, std::vector<Node> nodes);
 private:
     xdr::srpc_client<api_v1> *client;
 };
 
 #endif /* __CLIENT_H__ */
-

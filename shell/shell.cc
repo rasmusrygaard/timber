@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <vector>
 
 #include <xdrpp/srpc.h>
 
@@ -16,10 +17,24 @@
 
 using namespace std;
 
-Client client;
+std::vector<Client> clients;
 
 #define DEBUG_MAX_ARGS      5
 #define DEBUG_MAX_LINE      256
+
+/* Read the cluster configuration from timber.config.
+   The file is assumed to be of the form "ID\tPUBLIC_IP\tPRIVATE_IP". */
+std::vector<Node>
+readConfig() {
+    std::ifstream f("timber.config");
+    std::vector<Node> result;
+    std::string id, public_ip, private_ip;
+    while (f >> id >> public_ip >> private_ip) {
+        Node n = { id, public_ip, private_ip };
+        result.push_back(n);
+    }
+    return result;
+}
 
 void
 Cmd_Help(int argc, const char *argv[])
@@ -49,11 +64,10 @@ Cmd_Echo(int argc, const char *argv[])
 void
 Cmd_Logcabin(int argc, const char* argv[])
 {
-    std::vector<std::string> nodes;
-    for (int i = 1; i < argc; i++) {
-        nodes.push_back(argv[i]);
+    std::vector<Node> nodes = readConfig();
+    for (auto client : clients) {
+        client.setup(LogCabin, nodes);
     }
-    client.setup(LogCabin, nodes);
 }
 
 void
@@ -126,7 +140,6 @@ RunScript(const char *file)
 int
 main(int argc, const char *argv[])
 {
-    client = Client();
 
     if (argc != 2 && argc != 3) {
         cout << "Usage: shell HOST [SCRIPT]" << endl;
@@ -135,7 +148,12 @@ main(int argc, const char *argv[])
 
     // Setup connection
     try {
-        client.open(argv[1]);
+        std::vector<Node> nodes = readConfig();
+        for (Node n : nodes) {
+            Client client = Client();
+            client.open(n.public_ip);
+            clients.push_back(client);
+        }
     } catch (exception &e) {
         cout << "Connection failed!" << endl;
         cout << "Exception: " << e.what() << endl;

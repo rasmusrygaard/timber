@@ -54,7 +54,8 @@ template<> struct xdr_traits<::IPList>
 
 struct ClusterDesc {
   RaftType type{};
-  IPList nodeList{};
+  IPList public_ips{};
+  IPList private_ips{};
   std::int32_t nodeId{};
 };
 namespace xdr {
@@ -63,21 +64,26 @@ template<> struct xdr_traits<::ClusterDesc>
                               decltype(::ClusterDesc::type),
                               &::ClusterDesc::type>,
                     field_ptr<::ClusterDesc,
-                              decltype(::ClusterDesc::nodeList),
-                              &::ClusterDesc::nodeList>,
+                              decltype(::ClusterDesc::public_ips),
+                              &::ClusterDesc::public_ips>,
+                    field_ptr<::ClusterDesc,
+                              decltype(::ClusterDesc::private_ips),
+                              &::ClusterDesc::private_ips>,
                     field_ptr<::ClusterDesc,
                               decltype(::ClusterDesc::nodeId),
                               &::ClusterDesc::nodeId>> {
   template<typename Archive> static void
   save(Archive &ar, const ::ClusterDesc &obj) {
     archive(ar, obj.type, "type");
-    archive(ar, obj.nodeList, "nodeList");
+    archive(ar, obj.public_ips, "public_ips");
+    archive(ar, obj.private_ips, "private_ips");
     archive(ar, obj.nodeId, "nodeId");
   }
   template<typename Archive> static void
   load(Archive &ar, ::ClusterDesc &obj) {
     archive(ar, obj.type, "type");
-    archive(ar, obj.nodeList, "nodeList");
+    archive(ar, obj.public_ips, "public_ips");
+    archive(ar, obj.private_ips, "private_ips");
     archive(ar, obj.nodeId, "nodeId");
   }
 };
