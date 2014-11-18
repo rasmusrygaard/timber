@@ -11,12 +11,12 @@ std::unique_ptr<bool>
 api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
 {
   std::unique_ptr<bool> res(new bool);
-  
-    
+
+
   LogCabinWrapper logCabin;
   auto nodes = arg->nodeList.nodes;
   std::vector<std::string> nodeList;
-  std::ofstream f("/etc/hosts", 'a');
+  std::ofstream f("/etc/hosts");
   for (auto addr : nodes) {
 	  f << addr + " logcabin" << std::endl;
 	  nodeList.push_back(addr);
@@ -27,7 +27,7 @@ api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
   } else {
   	  logCabin.startServer(arg->nodeId);
   }
-  
+
   *res = true; //TODO: failure modes?
   return res;
 }
@@ -36,9 +36,9 @@ std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
-  
+
   // Fill in function body here
-  
+
   return res;
 }
 
@@ -46,8 +46,8 @@ std::unique_ptr<bool>
 api_v1_server::healPartition()
 {
   std::unique_ptr<bool> res(new bool);
-  
+
   // Fill in function body here
-  
+
   return res;
 }
