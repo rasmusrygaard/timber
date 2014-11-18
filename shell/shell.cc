@@ -141,15 +141,11 @@ int
 main(int argc, const char *argv[])
 {
 
-    if (argc != 2 && argc != 3) {
-        cout << "Usage: shell HOST [SCRIPT]" << endl;
-        return 1;
-    }
-
     // Setup connection
     try {
         std::vector<Node> nodes = readConfig();
         for (Node n : nodes) {
+            cout << "Connecting to " << n.public_ip << endl;
             Client client = Client();
             client.open(n.public_ip);
             clients.push_back(client);

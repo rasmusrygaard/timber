@@ -1,4 +1,5 @@
 import boto.ec2 as ec2
+import os
 
 def create_connection(awsKey=os.environ.get('AWS_KEY'),
                       awsSecret=os.environ.get('AWS_SECRET')):
