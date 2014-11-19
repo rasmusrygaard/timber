@@ -11,7 +11,7 @@
 void
 LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
     writeConfig(hosts);
-    system((LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
+    system(("bash " + LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
 }
 
 void
