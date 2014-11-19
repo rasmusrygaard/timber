@@ -26,17 +26,17 @@ LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
 
 void
 LogCabinWrapper::bootstrap(int id) {
-  system((LOGCABIN_DIR + "build/LogCabin --bootstrap --id " + std::to_string(id)).c_str());
+  system((LOGCABIN_DIR + "build/LogCabin --bootstrap --id " + std::to_string(id) + " &").c_str());
 }
 
 void
 LogCabinWrapper::startServer(int id) {
-  system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id)).c_str());
+  system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " &").c_str());
 }
 
 void
 LogCabinWrapper::reconfigure(const std::vector<std::string>& hosts) {
-  system((LOGCABIN_DIR + "build/Examples/Reconfigure" + joinHosts(hosts)).c_str());
+  system((LOGCABIN_DIR + "build/Examples/Reconfigure" + joinHosts(hosts) + " &").c_str());
 }
 
 std::string
