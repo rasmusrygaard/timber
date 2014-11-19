@@ -1,3 +1,4 @@
+sudo dpkg --configure -a
 sudo apt-get -y update
 sudo apt-get install -y git build-essential emacs curl wget iptables emacs automake pkg-config
 if [ ! -d 'timber' ]
@@ -8,8 +9,10 @@ else
     git pull origin master
     cd -
 fi
-iptables -A INPUT -p tcp --dport 6160 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT
 cd timber
 make
 chmod +x logcabin/*.sh
-server/server
+echo "Starting server"
+server/server > server.log &
+echo "Done"

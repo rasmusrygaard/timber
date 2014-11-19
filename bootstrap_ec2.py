@@ -14,15 +14,19 @@ def instance_public_ips(conn, ids):
 
 def run_script(conn, instance_ids, scriptfile):
     ips = instance_public_ips(conn, instance_ids)
+    copy_cmds = ["/usr/bin/ssh -i 224WKeys.pem -o StrictHostKeyChecking=no ubuntu@" + ip + " bash -s < bootstrap.sh" for ip in ips]
 
-    copy_cmds = ["/usr/bin/ssh -i 224WKeys.pem -o StrictHostKeyChecking=no ubuntu@" + ip + " bash -s" for ip in ips]
-    processes = [subprocess.Popen(cmd.split(' '), stdin=open('bootstrap.sh')) for cmd in copy_cmds]
-    for p in processes:
-        print 'Waiting for process', p
-        p.wait()
+    for cmd in copy_cmds:
+        print cmd
+        os.system(cmd)
+
 
 if not os.path.isfile('timber.config'):
     print 'No instances running'
+    exit()
+
+if not os.path.isfile('timber.config'):
+    print "Can't boostrap without any nodes. Run ec2runner.py first"
     exit()
 
 f = open('timber.config')

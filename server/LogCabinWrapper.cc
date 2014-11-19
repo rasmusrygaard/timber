@@ -10,17 +10,17 @@
 
 void
 LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
-  system((LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
-  writeConfig(hosts);
+    writeConfig(hosts);
+    system((LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
 }
 
 void
 LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
-  std::fstream fs;
-  fs.open (LOGCABIN_DIR + "logcabin.conf", std::fstream::in | std::fstream::trunc);
-  fs << "storageModule = filesystem";
-  fs << "storagePath = smoketeststorage";
-  fs << "servers = " << joinHosts(hosts);
+  std::ofstream fs;
+  fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
+  fs << "storageModule = filesystem" << std::endl;
+  fs << "storagePath = smoketeststorage" << std::endl;
+  fs << "servers = " << joinHosts(hosts) << std::endl;
   fs.close();
 }
 

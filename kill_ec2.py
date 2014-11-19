@@ -15,3 +15,4 @@ conn = create_connection()
 ids = [line.split('\t')[0] for line in f]
 
 terminate_instances(conn, ids)
+os.remove('timber.config')

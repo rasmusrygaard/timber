@@ -17,7 +17,7 @@
 
 using namespace std;
 
-std::vector<Client> clients;
+std::vector<Client*> clients;
 
 #define DEBUG_MAX_ARGS      5
 #define DEBUG_MAX_LINE      256
@@ -65,8 +65,9 @@ void
 Cmd_Logcabin(int argc, const char* argv[])
 {
     std::vector<Node> nodes = readConfig();
-    for (auto client : clients) {
-        client.setup(LogCabin, nodes);
+    for (int i = 0; i < clients.size(); ++i) {
+        std::cout << "Setting up LogCabin on client " << i << std::endl;
+        clients[i]->setup(LogCabin, nodes);
     }
 }
 
@@ -144,11 +145,11 @@ main(int argc, const char *argv[])
     // Setup connection
     try {
         std::vector<Node> nodes = readConfig();
+
         for (Node n : nodes) {
             cout << "Connecting to " << n.public_ip << endl;
-            Client client = Client();
-            client.open(n.public_ip);
-            clients.push_back(client);
+            clients.push_back(new Client());
+            clients[clients.size() - 1]->open(n.public_ip);
         }
     } catch (exception &e) {
         cout << "Connection failed!" << endl;
@@ -158,7 +159,7 @@ main(int argc, const char *argv[])
 
     // Either execute script or prompt
     try {
-        if (argc == 2) {
+        if (argc == 1) {
             cout << "Prompting" << endl;
             Prompt();
         } else {

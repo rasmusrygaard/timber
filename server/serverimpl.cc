@@ -15,7 +15,7 @@ api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
   LogCabinWrapper logCabin;
   auto private_ips = arg->private_ips.nodes;
   std::vector<std::string> nodeList;
-  std::ofstream f("/etc/hosts");
+  std::ofstream f("/etc/hosts", std::fstream::in | std::fstream::app | std::fstream::out);
   for (auto addr : private_ips) {
 	  f << addr + " logcabin" << std::endl;
 	  nodeList.push_back(addr);
