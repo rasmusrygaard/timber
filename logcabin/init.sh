@@ -1,6 +1,6 @@
 cd ~
 if ! which protoc >/dev/null; then
-  wget https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.bz2
+  wget -N https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.bz2 &> protobuf_wget.log
   tar -xvjf protobuf-2.5.0.tar.bz2
   cd protobuf-2.5.0
   ./configure --prefix=/usr
@@ -10,7 +10,7 @@ if ! which protoc >/dev/null; then
 fi
 cd ~
 if [ ! -d "logcabin" ]; then
-  git clone https://github.com/logcabin/logcabin.git
+  git clone https://github.com/logcabin/logcabin.git &> logcabin_clone.log
   cd logcabin
   git submodule update --init
   sudo apt-get install -y scons protobuf-compiler libcrypto++

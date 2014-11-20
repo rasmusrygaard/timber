@@ -13,6 +13,7 @@ sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT
 cd timber
 make
 chmod +x logcabin/*.sh
+cd ~
 echo "Starting server"
-server/server > server.log &
+nohup sudo timber/server/server &> server.log &
 echo "Done"

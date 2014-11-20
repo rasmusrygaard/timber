@@ -61,10 +61,21 @@ Cmd_Echo(int argc, const char *argv[])
     cout << endl;
 }
 
+// void
+// Client_Setup(Client*& client,
+//              const RaftImplementation& implementation,
+//              const std::vector<Node>& nodes) {
+//     client->setup(LogCabin, nodes);
+// }
+
 void
 Cmd_Logcabin(int argc, const char* argv[])
 {
     std::vector<Node> nodes = readConfig();
+    std::vector<std::thread> threads;
+    //std::transform(clients.begin(), clients.end(), threads.begin(),
+    //               [&nodes](Client*& c) { return std::thread(Client_Setup, c, LogCabin, nodes); });
+
     for (int i = 0; i < clients.size(); ++i) {
         std::cout << "Setting up LogCabin on client " << i << std::endl;
         clients[i]->setup(LogCabin, nodes);
