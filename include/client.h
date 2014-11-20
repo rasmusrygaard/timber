@@ -84,7 +84,8 @@ public:
      *
      * Return Value: true if key was created, false if key already exists
      */
-    bool setup(const RaftImplementation& implementation, std::vector<Node> nodes);
+    bool setup(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
+
 private:
     xdr::srpc_client<api_v1> *client;
 };

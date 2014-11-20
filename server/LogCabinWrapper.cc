@@ -36,14 +36,14 @@ LogCabinWrapper::bootstrap(int id) {
 void
 LogCabinWrapper::startServer(int id) {
   std::cout << "Starting server with id " << id << std::endl;
-  system((std::string("nohup ") + LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " &").c_str());
+  system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " &").c_str());
   std::cout << "Done starting server with id " << id << std::endl;
 }
 
 void
 LogCabinWrapper::reconfigure(const std::vector<std::string>& hosts) {
   std::cout << "Reconfiguring cluster with hosts " << joinHosts(hosts, " ") << std::endl;
-  system((LOGCABIN_DIR + "build/Examples/Reconfigure" + joinHosts(hosts, " ") + " &").c_str());
+  system((LOGCABIN_DIR + "build/Examples/Reconfigure " + joinHosts(hosts, " ") + " &").c_str());
   std::cout << "Done reconfiguring cluster" << std::endl;
 }
 

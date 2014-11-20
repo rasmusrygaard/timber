@@ -78,7 +78,7 @@ Cmd_Logcabin(int argc, const char* argv[])
 
     for (int i = 0; i < clients.size(); ++i) {
         std::cout << "Setting up LogCabin on client " << i << std::endl;
-        clients[i]->setup(LogCabin, nodes);
+        clients[i]->setup(LogCabin, nodes, i);
     }
 }
 

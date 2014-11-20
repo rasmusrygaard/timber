@@ -54,7 +54,7 @@ Client::isConnected()
 }
 
 bool
-Client::setup(const RaftImplementation& implementation, std::vector<Node> nodes)
+Client::setup(const RaftImplementation& implementation, std::vector<Node> nodes, const int id)
 {
     RaftType type;
     switch (implementation) {
@@ -68,17 +68,16 @@ Client::setup(const RaftImplementation& implementation, std::vector<Node> nodes)
         private_ips.nodes.push_back(node.private_ip);
     }
 
-    for (size_t i = 0; i < nodes.size(); i++) {
-        ClusterDesc cluster;
-        cluster.type = type;
-        cluster.public_ips = public_ips;
-        cluster.private_ips = private_ips;
-        cluster.nodeId = i;
-        auto r = client->setup(cluster);
-        if (*r == false) {
-            //TODO: cleanup?
-            return false;
-        }
+
+    ClusterDesc cluster;
+    cluster.type = type;
+    cluster.public_ips = public_ips;
+    cluster.private_ips = private_ips;
+    cluster.nodeId = id;
+    auto r = client->setup(cluster);
+    if (*r == false) {
+        //TODO: cleanup?
+        return false;
     }
 
     return true;
