@@ -18,12 +18,12 @@ LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
 
 void
 LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
-  std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts) << std::endl;
+  std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
   std::ofstream fs;
   fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
   fs << "storageModule = filesystem" << std::endl;
   fs << "storagePath = smoketeststorage" << std::endl;
-  fs << "servers = " << joinHosts(hosts) << std::endl;
+  fs << "servers = " << joinHosts(hosts, ";") << std::endl;
   fs.close();
 }
 
@@ -36,24 +36,24 @@ LogCabinWrapper::bootstrap(int id) {
 void
 LogCabinWrapper::startServer(int id) {
   std::cout << "Starting server with id " << id << std::endl;
-  system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " &").c_str());
+  system((std::string("nohup ") + LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " &").c_str());
   std::cout << "Done starting server with id " << id << std::endl;
 }
 
 void
 LogCabinWrapper::reconfigure(const std::vector<std::string>& hosts) {
-  std::cout << "Reconfiguring cluster with hosts " << joinHosts(hosts) << std::endl;
-  system((LOGCABIN_DIR + "build/Examples/Reconfigure" + joinHosts(hosts) + " &").c_str());
+  std::cout << "Reconfiguring cluster with hosts " << joinHosts(hosts, " ") << std::endl;
+  system((LOGCABIN_DIR + "build/Examples/Reconfigure" + joinHosts(hosts, " ") + " &").c_str());
   std::cout << "Done reconfiguring cluster" << std::endl;
 }
 
 std::string
-LogCabinWrapper::joinHosts(const std::vector<std::string> hosts) {
+LogCabinWrapper::joinHosts(const std::vector<std::string> hosts, const std::string& delim) {
   std::stringstream ss;
   bool first = true;
   for (auto host : hosts) {
     if (!first) {
-      ss << ";";
+      ss << delim;
     } else {
       first = false;
     }

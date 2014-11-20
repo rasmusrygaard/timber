@@ -16,3 +16,4 @@ if [ ! -d "logcabin" ]; then
   sudo apt-get install -y scons protobuf-compiler libcrypto++
   scons
 fi
+sudo iptables -A INPUT -p tcp --dport 61023 -j ACCEPT
