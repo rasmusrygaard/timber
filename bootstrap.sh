@@ -1,6 +1,6 @@
 sudo dpkg --configure -a
 sudo apt-get -y update
-sudo apt-get install -y git build-essential emacs curl wget iptables emacs automake pkg-config
+sudo apt-get install -y git build-essential emacs curl wget iptables emacs automake pkg-config bison
 if [ ! -d 'timber' ]
 then
     git clone https://github.com/rasmusrygaard/timber.git
