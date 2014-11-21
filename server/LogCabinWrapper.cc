@@ -29,8 +29,9 @@ LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
 
 void
 LogCabinWrapper::bootstrap(int id) {
-    std::cout << "Bootstrapping with id " << id << std::endl;
+  std::cout << "Bootstrapping with id " << id << std::endl;
   system((LOGCABIN_DIR + "build/LogCabin --bootstrap --id " + std::to_string(id) + " &").c_str());
+  std::cout << "Done boostrapping with id " << id << std::endl;
 }
 
 void
