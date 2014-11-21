@@ -2,12 +2,16 @@
 #include <sstream>
 #include <iostream>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 #include "server/LogCabinWrapper.h"
 
-  const std::string LOGCABIN_DIR = "~/logcabin/";
-  const std::string LOGCABIN_SCRIPTS_DIR = "~/timber/logcabin/";
-  const int LOGCABIN_PORT = 61023;
+const std::string LOGCABIN_DIR = "~/logcabin/";
+const std::string LOGCABIN_SCRIPTS_DIR = "~/timber/logcabin/";
+const std::string LOGCABIN_STORAGE_DIR = "~/logcabinstorage";
+const int LOGCABIN_PORT = 61023;
 
 void
 LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
@@ -19,11 +23,11 @@ LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
 
 void
 LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
-    std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
+  std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
   std::ofstream fs;
   fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
   fs << "storageModule = filesystem" << std::endl;
-  fs << "storagePath = smoketeststorage" << std::endl;
+  fs << "storagePath = " << LOGCABIN_STORAGE_DIR << std::endl;
   fs << "servers = " << joinHosts(hosts, ";") << std::endl;
   fs.close();
   std::cout << "Done writing logcabin.conf" << std::endl;
@@ -36,8 +40,15 @@ LogCabinWrapper::bootstrap(int id) {
   std::cout << "Done boostrapping with id " << id << std::endl;
 }
 
+bool
+LogCabinWrapper::alreadyRunning() {
+    struct stat statbuf;
+    return (stat(LOGCABIN_STORAGE_DIR.c_str(), &statbuf) != -1 && S_ISDIR(statbuf.st_mode));
+}
+
 void
 LogCabinWrapper::startServer(int id) {
+  if (!alreadyRunning())
   std::cout << "Starting server with id " << id << std::endl;
   system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " > logcabin_server.log &").c_str());
   std::cout << "Done starting server with id " << id << std::endl;
