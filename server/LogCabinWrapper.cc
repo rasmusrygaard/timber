@@ -40,15 +40,8 @@ LogCabinWrapper::bootstrap(int id) {
   std::cout << "Done boostrapping with id " << id << std::endl;
 }
 
-bool
-LogCabinWrapper::alreadyRunning() {
-    struct stat statbuf;
-    return (stat(LOGCABIN_STORAGE_DIR.c_str(), &statbuf) != -1 && S_ISDIR(statbuf.st_mode));
-}
-
 void
 LogCabinWrapper::startServer(int id) {
-  if (!alreadyRunning())
   std::cout << "Starting server with id " << id << std::endl;
   system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " > logcabin_server.log &").c_str());
   std::cout << "Done starting server with id " << id << std::endl;

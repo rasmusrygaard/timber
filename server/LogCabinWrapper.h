@@ -13,7 +13,6 @@ public:
 private:
   static void writeConfig(const std::vector<std::string>& hosts);
   static std::string joinHosts(const std::vector<std::string> hosts, const std::string& delim);
-  static bool alreadyRunning();
 
 };
 

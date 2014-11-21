@@ -21,7 +21,7 @@ api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
 	  nodeList.push_back(addr);
   }
   logCabin.initialize(nodeList);
-  if (arg->nodeId == 0) {
+  if (arg->nodeId == 1) {
       logCabin.bootstrap(arg->nodeId);
   }
   logCabin.startServer(arg->nodeId);

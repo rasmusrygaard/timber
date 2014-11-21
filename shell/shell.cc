@@ -77,8 +77,8 @@ Cmd_Logcabin(int argc, const char* argv[])
     //               [&nodes](Client*& c) { return std::thread(Client_Setup, c, LogCabin, nodes); });
 
     for (int i = 0; i < clients.size(); ++i) {
-        std::cout << "Setting up LogCabin on client " << i << std::endl;
-        clients[i]->setup(LogCabin, nodes, i);
+        std::cout << "Setting up LogCabin on client " << i + 1 << std::endl;
+        clients[i]->setup(LogCabin, nodes, i + 1);
     }
 }
 
