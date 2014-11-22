@@ -1,3 +1,58 @@
+Getting Started
+===============
+
+To run the scripts here, you need all the dependencies for lab #1 listed below.
+In addition, you should get boto for Python to talk to ec2.
+
+
+## Launching a Cluster
+
+Once you have the dependencies installed, you can launch an EC2 cluster:
+
+    python launch_ec2.py N
+
+Here `N` is the number of instances to launch.
+It should probably be `2f + 1` for some `f` > 1.
+The script will create a file `timber.config` which stores the ids and ips for the instances.
+Subsequent scripts (including the XDR shell) will depend on this file, so don't modify it unless you have a very good reason to do so.
+The file like this (columns are tab-separated):
+
+    instance-id  public-ip   private-ip
+
+You will need the public ip to SSH into the instance and the private ip to set up communication between instances.
+
+Now your cluster is up and running.
+To start playing with it, first set up Timber and any dependencies:
+
+    python boostrap_ec2.py
+
+This will take a little while to run.
+After the script finishes, you should be able to launch the shell (if this fails, try running boostrap again):
+
+    shell/shell
+
+This will pop you into a REPL where you can execute commands to run against the entire cluster.
+The connections are established using `timber.config` as described above.
+For example, to set up the cluster, run the `logcabin` command.
+This will install logcabin and dependencies and configure the cluster.
+This also takes a while, but you can keep track of the progress by SSH'ing into each instance and running `tail server.log` from the home directory.
+The output from the XDR process gets written to that file, so you can easily see what is goin on on the other side.
+
+Once the command finishes on all clusters, you should be able to start storing stuff in LogCabin.
+There's a small demo program in `logcabin/demo/Examples/HelloWorld`.
+If you run it, the script should finish immediately without any errors and you should see no output in your shell.
+If you are `tail`ing the other servers, you might see some snapshots being recorded.
+
+## Shutting Down The Cluster
+
+When you're done, run the following script:
+
+    python kill_ec2.py
+
+This will nuke your EC2 instances and get rid of `timber.config`.
+
+Old Lab #1 Documentation
+========================
 
 Lab #1
 ======
@@ -89,15 +144,15 @@ determine whether the client or the server is to blame.
 Overview
 --------
 
-Here we will show you how to get started with the system.  First inside the 
+Here we will show you how to get started with the system.  First inside the
 lab1 directory you should try to run make.
 
         $ make
 
-In order to define the RPCs that your server will support you will modify 
-`server.x` to define the parameters and return values.  Each RPC can take one 
-argument and one return value.  In order to pass multiple parameters you will 
-use structures.  The necessary XDR definition for the create method is shown 
+In order to define the RPCs that your server will support you will modify
+`server.x` to define the parameters and return values.  Each RPC can take one
+argument and one return value.  In order to pass multiple parameters you will
+use structures.  The necessary XDR definition for the create method is shown
 below.
 
         struct kvpair {
@@ -111,17 +166,17 @@ below.
           } = 1;
         } = 0x40048086;
 
-We have included in the repository a sample `serverimpl.{cc|hh}` file that 
-implements the server side just for the create method.  Every time you modify 
-the RPC protocol definition you will need to use the XDRPP compiler to 
-regenerate these files.  You need to rename the old files and merge your 
+We have included in the repository a sample `serverimpl.{cc|hh}` file that
+implements the server side just for the create method.  Every time you modify
+the RPC protocol definition you will need to use the XDRPP compiler to
+regenerate these files.  You need to rename the old files and merge your
 changes into the newly generated files.  To regenerate these files run:
 
         $ make scaffold
 
-The create method shown below shows how we extract the arguments from the `arg` 
-parameter.  The necessary implementation, some sample logging for debugging, 
-and how the result is set into the local `res`.  We left out the path sanity 
+The create method shown below shows how we extract the arguments from the `arg`
+parameter.  The necessary implementation, some sample logging for debugging,
+and how the result is set into the local `res`.  We left out the path sanity
 checking that you would want to do.
 
         std::unique_ptr<bool>
@@ -143,33 +198,33 @@ checking that you would want to do.
             db.set(key, val);
             std::cout << "Created " << key << " Succeeded" << std::endl;
           }
-        
+
           return res;
         }
 
-In the header for the server implementation we also created a simple 
+In the header for the server implementation we also created a simple
 constructor to initialize and open the database.
 
-The XDRPP library takes care of all the other serialization and network setup.  
-Our client library `libclient/client.cc` implements wrapper functions to 
-simplify the usage of the RPCs.  Here you should do basic sanity checking, call 
-the RPC method, parse the results and if needed throw an exception.  Below the 
+The XDRPP library takes care of all the other serialization and network setup.
+Our client library `libclient/client.cc` implements wrapper functions to
+simplify the usage of the RPCs.  Here you should do basic sanity checking, call
+the RPC method, parse the results and if needed throw an exception.  Below the
 code for library's create method.
 
         bool
         Client::create(const std::string &path, const std::string &val)
         {
             kvpair args;
-        
+
             args.key = path;
             args.val = val;
-        
+
             auto r = client->create(args);
-        
+
             return *r;
         }
 
-Finally, you should be able to test the create method by running the server and 
+Finally, you should be able to test the create method by running the server and
 client shell in separate terminals.
 
         $ server/server
@@ -180,11 +235,11 @@ client shell in separate terminals.
         > create /test def
         KEY ALREADY EXISTS
 
-N.B. Our create example is to get you started and does not sanity check the 
-path creation.  You should ensure that the server does not allow malformed 
-paths, i.e., paths must begin with a '/' and must contain only letters, 
-numbers, underscores and slashes to separate components.  Like the Zookeeper 
-paper, we should only create nodes if they have parents and delete nodes if 
+N.B. Our create example is to get you started and does not sanity check the
+path creation.  You should ensure that the server does not allow malformed
+paths, i.e., paths must begin with a '/' and must contain only letters,
+numbers, underscores and slashes to separate components.  Like the Zookeeper
+paper, we should only create nodes if they have parents and delete nodes if
 they have no children.
 
 Defining the RPC Protocol
@@ -197,7 +252,7 @@ client definitions.
 Below is a part of the `include/server.x` protocol definition you will
 need to modify.  We already filled in APIs for create, remove, set.
 It is missing both get and list.  The get call returns a particular
-key, and list returns a set of all keys under a given path.  You may find that 
+key, and list returns a set of all keys under a given path.  You may find that
 you need to change these APIs to express results as error codes.
 
         program server_api {
@@ -215,26 +270,26 @@ error codes you will need to return to the client.  Here is a summary
 of the C++ API you will need to implement.
 
 `bool create(string key, string value)`
-:   This method creates a key with the specified value.  On success the method 
-returns true.  If the key already exists it should return false.  For any other 
-errors or malformed keys (i.e. keys with spaces, not beginning with a '/') we 
+:   This method creates a key with the specified value.  On success the method
+returns true.  If the key already exists it should return false.  For any other
+errors or malformed keys (i.e. keys with spaces, not beginning with a '/') we
 should throw an exception.
 
 `bool remove(string key)`
-:   This method removes a key and returns true on success.  Otherwise it will 
+:   This method removes a key and returns true on success.  Otherwise it will
 return a failure.
 
 `string get(string key)`
-:   This method returns the value of the specified key.  If the key does not 
+:   This method returns the value of the specified key.  If the key does not
 exist it will throw an exception.
 
 `void set(string key, string value)`
-:   This method sets the value of the specified key.  If the key does not exist 
+:   This method sets the value of the specified key.  If the key does not exist
 it will throw an exception.
 
 `set<string> list(string key)`
-:   This method will return a set of all sub-keys.  The strings should contain 
-just the name of sub-key, and not the full path of the key.  If the parent key 
+:   This method will return a set of all sub-keys.  The strings should contain
+just the name of sub-key, and not the full path of the key.  If the parent key
 does not exist it will throw an exception.
 
 Once complete you complete the RPC definition, use the `xdrc` compiler
@@ -255,8 +310,8 @@ repository with:
 
         $ git add server/serverimpl.{cc,hh}
 
-You should choose a unique TCP port number to run your service.  To do this 
-modify the define UNIQUE_RPC_PORT in include/rpcconfig.h.  Choose a random 
+You should choose a unique TCP port number to run your service.  To do this
+modify the define UNIQUE_RPC_PORT in include/rpcconfig.h.  Choose a random
 number above 6100.
 
 RPC Client Library
@@ -324,12 +379,12 @@ support values with spaces.
 Testing and Submitting
 ----------------------
 
-Remember to run both the positive and negative test cases for each of the 
-functions provided.  Verify that the correct error code is returned for each 
+Remember to run both the positive and negative test cases for each of the
+functions provided.  Verify that the correct error code is returned for each
 negative test case.
 
-In the `tests` directory there are test scripts and sample outputs with both 
-positive and negative tests.  You can run them using the following command 
+In the `tests` directory there are test scripts and sample outputs with both
+positive and negative tests.  You can run them using the following command
 line.
 
         $ shell/shell 127.0.0.1 tests/create.tst
@@ -337,7 +392,7 @@ line.
         $ shell/shell 127.0.0.1 tests/getset.tst
         $ shell/shell 127.0.0.1 tests/list.tst
 
-If you implemented everything correctly the output will be a binary match to 
+If you implemented everything correctly the output will be a binary match to
 the output files in the same directory.
 
 To submit the project please run:
@@ -347,4 +402,3 @@ To submit the project please run:
         $ tar zcvf lab1.tgz lab1
 
 [RFC4506]: http://tools.ietf.org/html/rfc4506
-
