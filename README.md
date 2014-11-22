@@ -39,7 +39,7 @@ This also takes a while, but you can keep track of the progress by SSH'ing into 
 The output from the XDR process gets written to that file, so you can easily see what is goin on on the other side.
 
 Once the command finishes on all clusters, you should be able to start storing stuff in LogCabin.
-There's a small demo program in `logcabin/demo/Examples/HelloWorld`.
+There's a small demo program in `logcabin/demo/Examples/HelloWorld` on the cluster machines.
 If you run it, the script should finish immediately without any errors and you should see no output in your shell.
 If you are `tail`ing the other servers, you might see some snapshots being recorded.
 
