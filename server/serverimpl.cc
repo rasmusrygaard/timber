@@ -25,7 +25,8 @@ api_v1_server::setup(std::unique_ptr<ClusterDesc> arg)
       logCabin.bootstrap(arg->nodeId);
   }
   logCabin.startServer(arg->nodeId);
-  if (arg->nodeId == nodeList.size() - 1) {
+  // Numbering starts at 1.
+  if (arg->nodeId == nodeList.size()) {
       logCabin.reconfigure(nodeList);
   }
   *res = true; //TODO: failure modes?
