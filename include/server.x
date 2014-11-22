@@ -22,8 +22,9 @@ struct Partition {
 
 program server_api {
   version api_v1 {
-	bool setup(ClusterDesc) = 1;
-	bool makePartition(Partition) = 2;
-	bool healPartition(void) = 3;
+        bool install(ClusterDesc) = 1;
+        bool run(ClusterDesc) = 2;
+	bool makePartition(Partition) = 3;
+	bool healPartition(void) = 4;
   } = 1;
 } = 0x40048086;

@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "server.hh"
 
 struct Node {
     std::string id;
@@ -84,10 +85,14 @@ public:
      *
      * Return Value: true if key was created, false if key already exists
      */
-    bool setup(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
+    bool install(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
+
+    bool run(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
 
 private:
     xdr::srpc_client<api_v1> *client;
+    ClusterDesc getClusterDesc(const RaftImplementation& implementation,
+                               const std::vector<Node>& nodes,
+                               const int id);
 };
-
 #endif /* __CLIENT_H__ */

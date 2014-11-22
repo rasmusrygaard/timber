@@ -120,10 +120,10 @@ struct api_v1 {
   static constexpr std::uint32_t version = 1;
   static constexpr const char *version_name = "api_v1";
 
-  struct setup_t {
+  struct install_t {
     using interface_type = api_v1;
     static constexpr std::uint32_t proc = 1;
-    static constexpr const char *proc_name = "setup";
+    static constexpr const char *proc_name = "install";
     using arg_type = ClusterDesc;
     using arg_wire_type = ClusterDesc;
     using res_type = bool;
@@ -131,20 +131,42 @@ struct api_v1 {
     
     template<typename C, typename...A> static auto
     dispatch(C &&c, A &&...a) ->
-    decltype(c.setup(std::forward<A>(a)...)) {
-      return c.setup(std::forward<A>(a)...);
+    decltype(c.install(std::forward<A>(a)...)) {
+      return c.install(std::forward<A>(a)...);
     }
     
     template<typename C, typename DropIfVoid, typename...A> static auto
     dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
-    decltype(c.setup(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
-      return c.setup(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    decltype(c.install(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.install(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    }
+  };
+
+  struct run_t {
+    using interface_type = api_v1;
+    static constexpr std::uint32_t proc = 2;
+    static constexpr const char *proc_name = "run";
+    using arg_type = ClusterDesc;
+    using arg_wire_type = ClusterDesc;
+    using res_type = bool;
+    using res_wire_type = bool;
+    
+    template<typename C, typename...A> static auto
+    dispatch(C &&c, A &&...a) ->
+    decltype(c.run(std::forward<A>(a)...)) {
+      return c.run(std::forward<A>(a)...);
+    }
+    
+    template<typename C, typename DropIfVoid, typename...A> static auto
+    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
+    decltype(c.run(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.run(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
     }
   };
 
   struct makePartition_t {
     using interface_type = api_v1;
-    static constexpr std::uint32_t proc = 2;
+    static constexpr std::uint32_t proc = 3;
     static constexpr const char *proc_name = "makePartition";
     using arg_type = Partition;
     using arg_wire_type = Partition;
@@ -166,7 +188,7 @@ struct api_v1 {
 
   struct healPartition_t {
     using interface_type = api_v1;
-    static constexpr std::uint32_t proc = 3;
+    static constexpr std::uint32_t proc = 4;
     static constexpr const char *proc_name = "healPartition";
     using arg_type = void;
     using arg_wire_type = xdr::xdr_void;
@@ -190,12 +212,15 @@ struct api_v1 {
   call_dispatch(T &&t, std::uint32_t proc, A &&...a) {
     switch(proc) {
     case 1:
-      t.template dispatch<setup_t>(std::forward<A>(a)...);
+      t.template dispatch<install_t>(std::forward<A>(a)...);
       return true;
     case 2:
-      t.template dispatch<makePartition_t>(std::forward<A>(a)...);
+      t.template dispatch<run_t>(std::forward<A>(a)...);
       return true;
     case 3:
+      t.template dispatch<makePartition_t>(std::forward<A>(a)...);
+      return true;
+    case 4:
       t.template dispatch<healPartition_t>(std::forward<A>(a)...);
       return true;
     }
@@ -206,9 +231,15 @@ struct api_v1 {
     using _XDRBASE::_XDRBASE;
 
     template<typename..._XDRARGS> auto
-    setup(_XDRARGS &&..._xdr_args) ->
-    decltype(this->_XDRBASE::template invoke<setup_t>(_xdr_args...)) {
-      return this->_XDRBASE::template invoke<setup_t>(_xdr_args...);
+    install(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<install_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<install_t>(_xdr_args...);
+    }
+
+    template<typename..._XDRARGS> auto
+    run(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<run_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<run_t>(_xdr_args...);
     }
 
     template<typename..._XDRARGS> auto

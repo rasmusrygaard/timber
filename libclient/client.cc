@@ -53,13 +53,14 @@ Client::isConnected()
     return client != NULL;
 }
 
-bool
-Client::setup(const RaftImplementation& implementation, std::vector<Node> nodes, const int id)
-{
+ClusterDesc
+Client::getClusterDesc(const RaftImplementation& implementation,
+                       const std::vector<Node>& nodes,
+                       const int id) {
     RaftType type;
     switch (implementation) {
-      case LogCabin: type = LogCabinType; break;
-      case GoRaft:   type = GoRaftType; break;
+    case LogCabin: type = LogCabinType; break;
+    case GoRaft:   type = GoRaftType; break;
     }
 
     IPList public_ips, private_ips;
@@ -68,17 +69,37 @@ Client::setup(const RaftImplementation& implementation, std::vector<Node> nodes,
         private_ips.nodes.push_back(node.private_ip);
     }
 
-
     ClusterDesc cluster;
     cluster.type = type;
     cluster.public_ips = public_ips;
     cluster.private_ips = private_ips;
     cluster.nodeId = id;
-    auto r = client->setup(cluster);
+
+    return cluster;
+}
+
+bool
+Client::install(const RaftImplementation& implementation, std::vector<Node> nodes, const int id)
+{
+    ClusterDesc cluster = getClusterDesc(implementation, nodes, id);
+
+    auto r = client->install(cluster);
     if (*r == false) {
         //TODO: cleanup?
         return false;
     }
+
+    return true;
+}
+
+bool
+Client::run(const RaftImplementation& implementation, std::vector<Node> nodes, const int id)
+{
+    ClusterDesc cluster = getClusterDesc(implementation, nodes, id);
+
+    auto r = client->run(cluster);
+    if (*r == false)
+        return false;
 
     return true;
 }

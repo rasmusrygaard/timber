@@ -61,24 +61,32 @@ Cmd_Echo(int argc, const char *argv[])
     cout << endl;
 }
 
-// void
-// Client_Setup(Client*& client,
-//              const RaftImplementation& implementation,
-//              const std::vector<Node>& nodes) {
-//     client->setup(LogCabin, nodes);
-// }
+void
+Client_Setup(Client* client,
+             const RaftImplementation& implementation,
+             const std::vector<Node>& nodes,
+             const int id) {
+    client->install(LogCabin, nodes, id);
+}
 
 void
 Cmd_Logcabin(int argc, const char* argv[])
 {
     std::vector<Node> nodes = readConfig();
-    std::vector<std::thread> threads;
-    //std::transform(clients.begin(), clients.end(), threads.begin(),
-    //               [&nodes](Client*& c) { return std::thread(Client_Setup, c, LogCabin, nodes); });
+    std::vector<std::thread> threads(clients.size());
 
     for (int i = 0; i < clients.size(); ++i) {
         std::cout << "Setting up LogCabin on client " << i + 1 << std::endl;
-        clients[i]->setup(LogCabin, nodes, i + 1);
+        threads[i] = std::thread(&Client_Setup, clients[i], LogCabin, nodes, i + 1);
+    }
+
+    for (int i = 0; i < threads.size(); ++i) {
+        std::cout << "Joining thread " << i << "." << std::endl;
+        threads[i].join();
+    }
+
+    for (int i = 0; i < clients.size(); ++i) {
+        clients[i]->run(LogCabin, nodes, i + 1);
     }
 }
 
