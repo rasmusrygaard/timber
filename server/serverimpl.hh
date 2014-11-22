@@ -11,7 +11,8 @@ class api_v1_server {
 public:
   using rpc_interface_type = api_v1;
 
-  std::unique_ptr<bool> setup(std::unique_ptr<ClusterDesc> arg);
+  std::unique_ptr<bool> install(std::unique_ptr<ClusterDesc> arg);
+  std::unique_ptr<bool> run(std::unique_ptr<ClusterDesc> arg);
   std::unique_ptr<bool> makePartition(std::unique_ptr<Partition> arg);
   std::unique_ptr<bool> healPartition();
 };
