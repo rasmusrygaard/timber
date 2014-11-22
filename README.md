@@ -3,6 +3,8 @@ Getting Started
 
 To run the scripts here, you need all the dependencies for lab #1 listed below.
 In addition, you should get boto for Python to talk to ec2.
+The scripts assume that you have `AWS_KEY` and `AWS_SECRET` environment variables defined.
+You can defined them using `export AWS_KEY=mykey` etc.
 
 
 ## Launching a Cluster
