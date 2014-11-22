@@ -10,7 +10,7 @@
 
 const std::string LOGCABIN_DIR = "~/logcabin/";
 const std::string LOGCABIN_SCRIPTS_DIR = "~/timber/logcabin/";
-const std::string LOGCABIN_STORAGE_DIR = "~/logcabinstorage";
+const std::string LOGCABIN_STORAGE_DIR = "logcabinstorage";
 const int LOGCABIN_PORT = 61023;
 
 void
