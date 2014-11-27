@@ -56,32 +56,58 @@ api_v1_server::run(std::unique_ptr<ClusterDesc> arg)
 }
 
 
+
+bool
+is_current_node_in_group1(std::vector<std::string> group1)
+{
+  std::string host_ip;
+  host_ip = Config::get_hostname();
+  if (host_ip=="") return false;
+  std::ifstream f("/etc/hosts", std::fstream::in | std::fstream::app | std::fstream::out);
+  if (f.fail()) return false;
+  std::string line;
+  bool found = false;
+  while (std::getline(f,line)) {
+    size_t idx = line.find(host_ip);
+    if (idx != std::string::npos) {
+        for (auto n : group1) {
+          if(line.find(n) != std::string::npos) return true;
+        }
+    }
+  }
+  return found;
+}
+
 std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
-  std::cout << "Reached server" << std::endl;
-  auto group1_ips = arg->group1;
-  auto group2_ips = arg->group2;
-/*  
+
+  auto group1_nodes = arg->group1;
+  auto group2_nodes = arg->group2;
+ 
   std::vector<std::string> group1;
   std::vector<std::string> group2;
 
-  for (auto addr : group1_ips) {
-    group1.push_back(addr);
+  for (auto num : group1_nodes) {
+    group1.push_back("n" + std::to_string(num));
   }
-  for (auto addr : group2_ips) {
-    group2.push_back(addr);
+  for (auto num : group2_nodes) {
+    group2.push_back("n" + std::to_string(num));
   }
-
 
   try {
-    std::cout << "partition happens" << std::endl;
+    bool in_group1;
+    in_group1 = is_current_node_in_group1(group1);
+    if(in_group1) {
+      Config::partitionNodes(group2);
+    } else {
+      Config::partitionNodes(group1);
+    }
   } catch (std::exception &e) {
-      std::cout << "HERE" << std::endl;
       if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
   }
-*/
+
   *res = true;
   return res;
 }

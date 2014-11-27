@@ -18,6 +18,10 @@ public:
    */
   static bool partitionNodes(const std::vector<std::string>& nodes);
 
+  /* 
+   * Returns the host ip address of the current client node.
+   */
+  static std::string get_hostname();
 };
 
 #endif

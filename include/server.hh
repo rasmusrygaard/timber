@@ -90,8 +90,8 @@ template<> struct xdr_traits<::ClusterDesc>
 }
 
 struct Partition {
-  xdr::xvector<IPAddr> group1{};
-  xdr::xvector<IPAddr> group2{};
+  xdr::xvector<std::int32_t> group1{};
+  xdr::xvector<std::int32_t> group2{};
 };
 namespace xdr {
 template<> struct xdr_traits<::Partition>

@@ -16,8 +16,8 @@ struct ClusterDesc {
 };
 
 struct Partition {
-	IPAddr group1<>;
-	IPAddr group2<>;
+	int group1<>;
+	int group2<>;
 };
 
 program server_api {

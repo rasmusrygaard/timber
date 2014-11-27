@@ -78,15 +78,17 @@ Client::getClusterDesc(const RaftImplementation& implementation,
     return cluster;
 }
 
+
 Partition
-Client::getPartition(const std::vector<Node>& g1, const std::vector<Node>& g2)
+Client::getPartition(const std::vector<int>& g1, 
+                    const std::vector<int>& g2)
 {
     Partition partition;
     for (auto node : g1) {
-        partition.group1.push_back(node.private_ip);
+        partition.group1.push_back(node);
     }
     for (auto node : g2) { 
-        partition.group2.push_back(node.private_ip);
+        partition.group2.push_back(node);
     }
     return partition;
 }
@@ -121,19 +123,10 @@ Client::run(const RaftImplementation& implementation, std::vector<Node> nodes, c
 
 
 bool
-Client::makePartition(std::vector<Node> private_ips1, std::vector<Node> private_ips2)
+//Client::makePartition(std::vector<Node> private_ips1, std::vector<Node> private_ips2)
+Client::makePartition(std::vector<int> private_ips1, std::vector<int> private_ips2)
 {
     Partition partition = getPartition(private_ips1, private_ips2);
- 
-    std::cout << "================================" << std::endl;
-    std::cout << "Group 1" << std::endl;
-    for (int i=0; i<partition.group1.size(); i++) {
-        std::cout << partition.group1[i] << std::endl;
-    }
-    std::cout << "Group 2" << std::endl;    
-    for (int i=0; i<partition.group2.size(); i++) {
-        std::cout << partition.group2[i] << std::endl;
-    }
 
     auto r = client->makePartition(partition);
     if (*r == false)
