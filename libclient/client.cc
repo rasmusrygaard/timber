@@ -79,16 +79,16 @@ Client::getClusterDesc(const RaftImplementation& implementation,
 }
 
 
-Partition
-Client::getPartition(const std::vector<int>& g1, 
-                    const std::vector<int>& g2)
+Part
+Client::getPartition(const std::vector<Node>& g1, 
+                    const std::vector<Node>& g2)
 {
-    Partition partition;
+    Part partition;
     for (auto node : g1) {
-        partition.group1.push_back(node);
+        partition.group1.push_back(node.private_ip);
     }
     for (auto node : g2) { 
-        partition.group2.push_back(node);
+        partition.group2.push_back(node.private_ip);
     }
     return partition;
 }
@@ -123,12 +123,12 @@ Client::run(const RaftImplementation& implementation, std::vector<Node> nodes, c
 
 
 bool
-//Client::makePartition(std::vector<Node> private_ips1, std::vector<Node> private_ips2)
-Client::makePartition(std::vector<int> private_ips1, std::vector<int> private_ips2)
+Client::makePartition(std::vector<Node> private_ips1, std::vector<Node> private_ips2)
+//Client::makePartition(std::vector<int> private_ips1, std::vector<int> private_ips2)
 {
-    Partition partition = getPartition(private_ips1, private_ips2);
+    Part arg = getPartition(private_ips1, private_ips2);
 
-    auto r = client->makePartition(partition);
+    auto r = client->splitCluster(arg);
     if (*r == false)
         return false;
 

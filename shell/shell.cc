@@ -99,21 +99,22 @@ Cmd_Partition(int argc, const char* argv[])
     //Gets all the nodes
     std::vector<Node> nodes = readConfig();
     int num_nodes = nodes.size();
-/*
+
     std::vector<Node> group1;
     std::vector<Node> group2;
-*/
+/*
     std::vector<int> group1;
     std::vector<int> group2;
-
+*/
     //splits the nodes in half
-    for(int i=1; i <= nodes.size()/2; i++) {
-        //group1.push_back(nodes[i]);
-        group1.push_back(i);
+    int start = 0;
+    for(int i=start; i <= nodes.size()/2; i++) {
+        group1.push_back(nodes[i]);
+        //group1.push_back(i);
     }
     for(int i=nodes.size()/2 + 1; i<=nodes.size(); i++) {
-        group2.push_back(i);
-        //group2.push_back(nodes[i]);    
+        //group2.push_back(i);
+        group2.push_back(nodes[i]);    
     }
 
     for (int i=0; i<clients.size(); i++) {

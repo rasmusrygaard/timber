@@ -82,7 +82,17 @@ std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
+  
+  // Fill in function body here
+  
+  return res;
+}
 
+std::unique_ptr<bool>
+api_v1_server::splitCluster(std::unique_ptr<Part> arg)
+{
+  std::unique_ptr<bool> res(new bool);
+/*
   auto group1_nodes = arg->group1;
   auto group2_nodes = arg->group2;
  
@@ -100,14 +110,14 @@ api_v1_server::makePartition(std::unique_ptr<Partition> arg)
     bool in_group1;
     in_group1 = is_current_node_in_group1(group1);
     if(in_group1) {
-      Config::partitionNodes(group2);
+      *res = Config::partitionNodes(group2);
     } else {
-      Config::partitionNodes(group1);
+      *res = Config::partitionNodes(group1);
     }
   } catch (std::exception &e) {
       if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
   }
-
+*/
   *res = true;
   return res;
 }

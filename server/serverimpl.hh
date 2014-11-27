@@ -14,6 +14,7 @@ public:
   std::unique_ptr<bool> install(std::unique_ptr<ClusterDesc> arg);
   std::unique_ptr<bool> run(std::unique_ptr<ClusterDesc> arg);
   std::unique_ptr<bool> makePartition(std::unique_ptr<Partition> arg);
+  std::unique_ptr<bool> splitCluster(std::unique_ptr<Part> arg);
   std::unique_ptr<bool> healPartition();
 };
 
