@@ -5,6 +5,8 @@
 #include "LogCabinWrapper.h"
 #include "config.h"
 #include <string>
+#include <iostream>
+
 #include <vector>
 #include <fstream>
 
@@ -53,22 +55,45 @@ api_v1_server::run(std::unique_ptr<ClusterDesc> arg)
     return res;
 }
 
+
 std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
+  std::cout << "Reached server" << std::endl;
+  auto group1_ips = arg->group1;
+  auto group2_ips = arg->group2;
+/*  
+  std::vector<std::string> group1;
+  std::vector<std::string> group2;
 
-  // Fill in function body here
+  for (auto addr : group1_ips) {
+    group1.push_back(addr);
+  }
+  for (auto addr : group2_ips) {
+    group2.push_back(addr);
+  }
 
+
+  try {
+    std::cout << "partition happens" << std::endl;
+  } catch (std::exception &e) {
+      std::cout << "HERE" << std::endl;
+      if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
+  }
+*/
+  *res = true;
   return res;
 }
+
+
 
 std::unique_ptr<bool>
 api_v1_server::healPartition()
 {
   std::unique_ptr<bool> res(new bool);
-
+  
   // Fill in function body here
-
+  
   return res;
 }

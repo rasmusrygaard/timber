@@ -39,6 +39,7 @@ readConfig() {
 void
 Cmd_Help(int argc, const char *argv[])
 {
+    cout << "partition  Partition a set of nodes" << endl;
     cout << "logcabin   Set up logcabin" << endl;
     cout << "create     Create a node" << endl;
     cout << "echo       Echo arguments" << endl;
@@ -90,6 +91,39 @@ Cmd_Logcabin(int argc, const char* argv[])
     }
 }
 
+
+/* Partitions the Network */
+void
+Cmd_Partition(int argc, const char* argv[])
+{
+    //Gets all the nodes
+    std::vector<Node> nodes = readConfig();
+
+    std::vector<Node> group1;
+    std::vector<Node> group2;
+
+    //splits the nodes in half
+    for(int i=0; i < nodes.size()/2; i++) {
+        group1.push_back(nodes[i]);
+    }
+    for(int i=nodes.size()/2; i<=nodes.size(); i++) {
+        group2.push_back(nodes[i]);    
+    }
+
+    for (int i=0; i<clients.size(); i++) {
+       clients[i]->makePartition(group1, group2);
+    }
+}
+
+
+/* Snubs specified nodes */
+void 
+Cmd_SnubNodes(int argc, const char* argv[])
+{
+    //Fill in function body
+}
+
+
 void
 DispatchCommand(char *buf)
 {
@@ -120,6 +154,10 @@ DispatchCommand(char *buf)
         exit(0);
     } else if (cmd == "logcabin") {
         Cmd_Logcabin(argc, (const char**)argv);
+    } else if (cmd == "partition") {
+        Cmd_Partition(argc, (const char**)argv);
+    } else if (cmd == "snub_nodes") {
+        Cmd_SnubNodes(argc, (const char**)argv);
     } else if (cmd == "#") {
         // Ignore comments
     } else if (cmd != "") {
