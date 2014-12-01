@@ -3,6 +3,7 @@
 
 #include "server/serverimpl.hh"
 #include "LogCabinWrapper.h"
+#include "Etcd.h"
 #include "config.h"
 #include <string>
 #include <iostream>
@@ -19,36 +20,33 @@ api_v1_server::install(std::unique_ptr<ClusterDesc> cluster)
     Config::addHosts(cluster, "n", true);
 
     if (cluster->type == LogCabinType) {
-        LogCabinWrapper logCabin;
         // Add logcabin hosts.
         Config::addHosts(cluster, "logcabin", false);
 
-        logCabin.initialize(cluster);
+        LogCabinWrapper::initialize(cluster);
     } else if (cluster->type == EtcdType) {
-
+        Etcd::initialize(cluster);
     }
     *res = true; //TODO: failure modes?
     return res;
 }
 
 std::unique_ptr<bool>
-api_v1_server::run(std::unique_ptr<ClusterDesc> arg)
+api_v1_server::run(std::unique_ptr<ClusterDesc> cluster)
 {
     std::unique_ptr<bool> res(new bool);
 
-    LogCabinWrapper logCabin;
-    auto private_ips = arg->private_ips.nodes;
-    std::vector<std::string> nodeList;
-    for (auto addr : private_ips) {
-        nodeList.push_back(addr);
+    if (cluster->type == LogCabinType) {
+        // Numbering starts at 1.
+        // First node bootraps cluster, last node reconfigures.
+        if (cluster->nodeId == 1) LogCabinWrapper::bootstrap(cluster->nodeId);
+        LogCabinWrapper::startServer(cluster->nodeId);
+        if (cluster->nodeId == cluster->private_ips.nodes.size()) {
+            LogCabinWrapper::reconfigure(cluster);
+        }
+    } else if (cluster->type == EtcdType) {
+        Etcd::startServer(cluster);
     }
-
-    // Numbering starts at 1.
-    // First node bootraps cluster, last node reconfigures.
-    if (arg->nodeId == 1) logCabin.bootstrap(arg->nodeId);
-    logCabin.startServer(arg->nodeId);
-    if (arg->nodeId == nodeList.size()) logCabin.reconfigure(nodeList);
-
     *res = true; //TODO: failure modes?
     return res;
 }

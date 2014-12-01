@@ -21,53 +21,53 @@ LogCabinWrapper::initialize(const std::unique_ptr<ClusterDesc>& cluster) {
 }
 
 void
-LogCabinWrapper::writeConfig(const std::unique_ptr<ClusterDesc>& cluster) {
-    std::vector<std::string> hosts;
-    for (auto private_ip : cluster->private_ips.nodes) {
-        hosts.push_back(private_ip);
-    }
-    std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
-    std::ofstream fs;
-    fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
-    fs << "storageModule = filesystem" << std::endl;
-    fs << "storagePath = " << LOGCABIN_STORAGE_DIR << std::endl;
-    fs << "servers = " << joinHosts(hosts, ";") << std::endl;
-    fs.close();
-  std::cout << "Done writing logcabin.conf" << std::endl;
-}
-
-void
 LogCabinWrapper::bootstrap(int id) {
-  std::cout << "Bootstrapping with id " << id << std::endl;
-  system((LOGCABIN_DIR + "build/LogCabin --bootstrap --id " + std::to_string(id) + " > bootstrap.log").c_str());
-  std::cout << "Done boostrapping with id " << id << std::endl;
+    std::cout << "Bootstrapping with id " << id << std::endl;
+    system((LOGCABIN_DIR + "build/LogCabin --bootstrap --id " + std::to_string(id) + " > bootstrap.log").c_str());
+    std::cout << "Done boostrapping with id " << id << std::endl;
 }
 
 void
 LogCabinWrapper::startServer(int id) {
-  std::cout << "Starting server with id " << id << std::endl;
-  system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " > logcabin_server.log &").c_str());
-  std::cout << "Done starting server with id " << id << std::endl;
+    std::cout << "Starting server with id " << id << std::endl;
+    system((LOGCABIN_DIR + "build/LogCabin --id " + std::to_string(id) + " > logcabin_server.log &").c_str());
+    std::cout << "Done starting server with id " << id << std::endl;
 }
 
 void
-LogCabinWrapper::reconfigure(const std::vector<std::string>& hosts) {
-  std::cout << "Reconfiguring cluster with hosts " << joinHosts(hosts, " ") << std::endl;
-  system((LOGCABIN_DIR + "build/Examples/Reconfigure " + joinHosts(hosts, " ") + " > logcabin_reconfigur.log &").c_str());
-  std::cout << "Done reconfiguring cluster" << std::endl;
+LogCabinWrapper::reconfigure(const std::unique_ptr<ClusterDesc>& cluster) {
+    std::cout << "Reconfiguring cluster with cluster " << joinPrivateIPs(cluster, " ") << std::endl;
+    system((LOGCABIN_DIR + "build/Examples/Reconfigure " + joinPrivateIPs(cluster, " ") + " > logcabin_reconfigur.log &").c_str());
+    std::cout << "Done reconfiguring cluster" << std::endl;
+}
+
+void
+LogCabinWrapper::writeConfig(const std::unique_ptr<ClusterDesc>& cluster) {
+    std::cout << "Writing logcabin.conf with cluster " << joinPrivateIPs(cluster, ";") << std::endl;
+    std::ofstream fs;
+    fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
+    fs << "storageModule = filesystem" << std::endl;
+    fs << "storagePath = " << LOGCABIN_STORAGE_DIR << std::endl;
+    fs << "servers = " << joinPrivateIPs(cluster, ";") << std::endl;
+    fs.close();
+    std::cout << "Done writing logcabin.conf" << std::endl;
 }
 
 std::string
-LogCabinWrapper::joinHosts(const std::vector<std::string> hosts, const std::string& delim) {
-  std::stringstream ss;
-  bool first = true;
-  for (auto host : hosts) {
-    if (!first) {
-      ss << delim;
-    } else {
-      first = false;
+LogCabinWrapper::joinPrivateIPs(const std::unique_ptr<ClusterDesc>& cluster, const std::string& delim) {
+    std::vector<std::string> hosts;
+    for (auto private_ip : cluster->private_ips.nodes) {
+        hosts.push_back(private_ip);
     }
-    ss << host << ":" << LOGCABIN_PORT;
-  }
-  return ss.str();
+    std::stringstream ss;
+    bool first = true;
+    for (auto host : hosts) {
+        if (!first) {
+            ss << delim;
+        } else {
+            first = false;
+        }
+        ss << host << ":" << LOGCABIN_PORT;
+    }
+    return ss.str();
 }

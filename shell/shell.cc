@@ -91,6 +91,18 @@ Cmd_Logcabin(int argc, const char* argv[])
     }
 }
 
+void
+Cmd_Etcd(int argc, const char* argv[])
+{
+    std::vector<Node> nodes = readConfig();
+    std::vector<std::thread> threads(clients.size());
+
+    for (int i = 0; i < clients.size(); ++i) {
+        std::cout << "Setting up Etcd on client " << i + 1 << std::endl;
+        threads[i] = std::thread(&Client_Setup, clients[i], Etcd, nodes, i + 1);
+    }
+}
+
 
 /* Partitions the Network */
 void
@@ -113,7 +125,7 @@ Cmd_Partition(int argc, const char* argv[])
     }
     for(int i=nodes.size()/2 + 1; i<=nodes.size(); i++) {
         group2.push_back(i);
-        //group2.push_back(nodes[i]);    
+        //group2.push_back(nodes[i]);
     }
 
     for (int i=0; i<clients.size(); i++) {
@@ -123,7 +135,7 @@ Cmd_Partition(int argc, const char* argv[])
 
 
 /* Snubs specified nodes */
-void 
+void
 Cmd_SnubNodes(int argc, const char* argv[])
 {
     //Fill in function body
@@ -160,6 +172,8 @@ DispatchCommand(char *buf)
         exit(0);
     } else if (cmd == "logcabin") {
         Cmd_Logcabin(argc, (const char**)argv);
+    } else if (cmd == "etcd") {
+        Cmd_Etcd(argc, (const char**)argv);
     } else if (cmd == "partition") {
         Cmd_Partition(argc, (const char**)argv);
     } else if (cmd == "snub_nodes") {
