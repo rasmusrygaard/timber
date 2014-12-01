@@ -31,7 +31,7 @@ enum ClientError {
     MALFORMED_KEY,
 };
 
-enum RaftImplementation { LogCabin, GoRaft };
+enum RaftImplementation { LogCabin, Etcd };
 
 /*
  * For server and/or library errors that must delivered to the client
@@ -96,7 +96,7 @@ private:
     ClusterDesc getClusterDesc(const RaftImplementation& implementation,
                                const std::vector<Node>& nodes,
                                const int id);
-    Partition getPartition(const std::vector<int>& g1, 
+    Partition getPartition(const std::vector<int>& g1,
                             const std::vector<int>& g2);
 
 };

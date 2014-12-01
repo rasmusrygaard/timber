@@ -3,16 +3,17 @@
 
 #include <string>
 #include <vector>
+#include "include/server.hh"
 
 class LogCabinWrapper {
 public:
-  static void initialize(const std::vector<std::string>& hosts);
-  static void bootstrap(int id);
-  static void startServer(int id);
-  static void reconfigure(const std::vector<std::string>& hosts);
+    static void initialize(const std::unique_ptr<ClusterDesc>& cluster);
+    static void bootstrap(int id);
+    static void startServer(int id);
+    static void reconfigure(const std::vector<std::string>& hosts);
 private:
-  static void writeConfig(const std::vector<std::string>& hosts);
-  static std::string joinHosts(const std::vector<std::string> hosts, const std::string& delim);
+    static void writeConfig(const std::unique_ptr<ClusterDesc>& cluster);
+    static std::string joinHosts(const std::vector<std::string> hosts, const std::string& delim);
 
 };
 

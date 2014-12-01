@@ -11,7 +11,7 @@ using longstring = xdr::xstring<>;
 
 enum RaftType : std::uint32_t {
   LogCabinType,
-  GoRaftType,
+  EtcdType,
 };
 namespace xdr {
 template<> struct xdr_traits<::RaftType>
@@ -22,8 +22,8 @@ template<> struct xdr_traits<::RaftType>
     switch (val) {
     case ::LogCabinType:
       return "LogCabinType";
-    case ::GoRaftType:
-      return "GoRaftType";
+    case ::EtcdType:
+      return "EtcdType";
     default:
       return nullptr;
     }

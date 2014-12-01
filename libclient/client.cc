@@ -60,7 +60,7 @@ Client::getClusterDesc(const RaftImplementation& implementation,
     RaftType type;
     switch (implementation) {
     case LogCabin: type = LogCabinType; break;
-    case GoRaft:   type = GoRaftType; break;
+    case Etcd:     type = EtcdType; break;
     }
 
     IPList public_ips, private_ips;
@@ -80,14 +80,14 @@ Client::getClusterDesc(const RaftImplementation& implementation,
 
 
 Partition
-Client::getPartition(const std::vector<int>& g1, 
+Client::getPartition(const std::vector<int>& g1,
                     const std::vector<int>& g2)
 {
     Partition partition;
     for (auto node : g1) {
         partition.group1.push_back(node);
     }
-    for (auto node : g2) { 
+    for (auto node : g2) {
         partition.group2.push_back(node);
     }
     return partition;

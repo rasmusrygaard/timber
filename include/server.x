@@ -1,6 +1,6 @@
 typedef string longstring<>;
 
-enum RaftType { LogCabinType, GoRaftType };
+enum RaftType { LogCabinType, EtcdType };
 
 typedef string IPAddr<15>;
 

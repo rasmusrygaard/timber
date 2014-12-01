@@ -5,7 +5,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-
 #include "server/LogCabinWrapper.h"
 
 const std::string LOGCABIN_DIR = "~/logcabin/";
@@ -14,22 +13,26 @@ const std::string LOGCABIN_STORAGE_DIR = "logcabinstorage";
 const int LOGCABIN_PORT = 61023;
 
 void
-LogCabinWrapper::initialize(const std::vector<std::string>& hosts) {
-    writeConfig(hosts);
+LogCabinWrapper::initialize(const std::unique_ptr<ClusterDesc>& cluster) {
+    writeConfig(cluster);
     std::cout << "Running init.sh for LogCabin" << std::endl;
     system(("bash " + LOGCABIN_SCRIPTS_DIR + "init.sh").c_str());
     std::cout << "Done running init.sh for LogCabin" << std::endl;
 }
 
 void
-LogCabinWrapper::writeConfig(const std::vector<std::string>& hosts) {
-  std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
-  std::ofstream fs;
-  fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
-  fs << "storageModule = filesystem" << std::endl;
-  fs << "storagePath = " << LOGCABIN_STORAGE_DIR << std::endl;
-  fs << "servers = " << joinHosts(hosts, ";") << std::endl;
-  fs.close();
+LogCabinWrapper::writeConfig(const std::unique_ptr<ClusterDesc>& cluster) {
+    std::vector<std::string> hosts;
+    for (auto private_ip : cluster->private_ips.nodes) {
+        hosts.push_back(private_ip);
+    }
+    std::cout << "Writing logcabin.conf with hosts " << joinHosts(hosts, ";") << std::endl;
+    std::ofstream fs;
+    fs.open ("logcabin.conf", std::fstream::trunc | std::fstream::out);
+    fs << "storageModule = filesystem" << std::endl;
+    fs << "storagePath = " << LOGCABIN_STORAGE_DIR << std::endl;
+    fs << "servers = " << joinHosts(hosts, ";") << std::endl;
+    fs.close();
   std::cout << "Done writing logcabin.conf" << std::endl;
 }
 
