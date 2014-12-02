@@ -28,7 +28,7 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
     std::string public_ip = cluster->private_ips.nodes[id - 1];
     std::stringstream ss;
     ss << ETCD_DIR << "etcd "
-       << " -name n" << id << " "
+       << "-name n" << id << " "
        << "-initial-advertise-peer-urls http://" << private_ip << ":" << ETCD_PEER_PORT << " "
        << "-listen-peer-urls http://" << private_ip << ":" << ETCD_PEER_PORT << " "
        << "-advertise-client-urls http://" << public_ip << ":" << ETCD_CLIENT_PORT << " "
@@ -36,6 +36,7 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
        << "-initial-cluster " << joinPrivateIPs(cluster) << " "
        << "-initial-cluster-state new &> etcd_server.log &";
     system(ss.str().c_str());
+    std::cout << "Done with etcd server on node " << cluster->nodeId << std::endl;
 }
 
 std::string
