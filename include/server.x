@@ -30,7 +30,7 @@ program server_api {
         bool install(ClusterDesc) = 1;
         bool run(ClusterDesc) = 2;
 		bool makePartition(Partition) = 3;
-		bool splitCluster(Part) = 4;
-		bool healPartition(void) = 5;
+		bool splitCluster(Partition) = 4;
+		bool healPartition(int) = 5;
   } = 1;
 } = 0x40048086;

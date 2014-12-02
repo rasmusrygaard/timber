@@ -89,15 +89,17 @@ public:
 
     bool run(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
 
-    bool makePartition(std::vector<Node> pr_ips1, std::vector<Node> pr_ips2);
+    bool makePartition(std::vector<int> gr1, std::vector<int> gr2);
+    
+    bool heal_cluster(int num_nodes);
 
 private:
     xdr::srpc_client<api_v1> *client;
     ClusterDesc getClusterDesc(const RaftImplementation& implementation,
                                const std::vector<Node>& nodes,
                                const int id);
-    Part getPartition(const std::vector<Node>& g1, 
-                            const std::vector<Node>& g2);
+    Partition getPartition(const std::vector<int>& g1, 
+                            const std::vector<int>& g2);
 
 };
 #endif /* __CLIENT_H__ */

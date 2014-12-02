@@ -82,14 +82,40 @@ std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
-  
+ 
+  auto group1_nodes = arg->group1;
+  auto group2_nodes = arg->group2;
+ 
+  std::vector<std::string> group1;
+  std::vector<std::string> group2;
+
+  for (auto num : group1_nodes) {
+    group1.push_back("n" + std::to_string(num));
+  }
+  for (auto num : group2_nodes) {
+    group2.push_back("n" + std::to_string(num));
+  }
+  try {
+    bool in_group1;
+    in_group1 = is_current_node_in_group1(group1);
+    if(in_group1) {
+      *res = Config::partitionNodes(group2);
+    } else {
+      *res = Config::partitionNodes(group1);
+    }
+  } catch (std::exception &e) {
+      if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
+  }
+
+
+
   // Fill in function body here
-  
+  *res = true;
   return res;
 }
 
 std::unique_ptr<bool>
-api_v1_server::splitCluster(std::unique_ptr<Part> arg)
+api_v1_server::splitCluster(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
 /*
@@ -125,11 +151,16 @@ api_v1_server::splitCluster(std::unique_ptr<Part> arg)
 
 
 std::unique_ptr<bool>
-api_v1_server::healPartition()
+api_v1_server::healPartition(std::unique_ptr<int> arg)
 {
   std::unique_ptr<bool> res(new bool);
   
-  // Fill in function body here
+  std::vector<std::string> nodes;
+  for (int i=1; i<=*arg; i++) {
+    nodes.push_back("n" + std::to_string(i));
+  }
+
+  *res = Config::healNodes(nodes);
   
   return res;
 }

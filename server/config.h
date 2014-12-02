@@ -22,6 +22,9 @@ public:
    * Returns the host ip address of the current client node.
    */
   static std::string get_hostname();
+
+  static bool healNodes(const std::vector<std::string>& nodes);
+
 };
 
 #endif

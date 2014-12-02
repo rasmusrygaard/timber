@@ -47,33 +47,21 @@ Config::get_hostname()
  * The function assumes that the current node is _not_ in nodeList.
  */
 bool Config::partitionNodes(const std::vector<std::string>& nodes) {
-  std::string host_ip;
-  host_ip = get_hostname();
-  if (host_ip=="") return false;
-
-  std::vector<std::string> partition_ips;
-
-  //get ips to partition, checking that current node is not in nodeList
-  std::ifstream f("/etc/hosts", std::fstream::in | std::fstream::app | std::fstream::out);
-  if (f.fail()) return false;
-  std::string line;
-  while (std::getline(f,line)) {
-    bool found = false;
-    for (auto name : nodes) {
-      size_t idx = line.find(name);
-      if (idx != std::string::npos && line.find(host_ip) == std::string::npos) {
-          std::string s = line.substr(0, idx-1);
-          partition_ips.push_back(s);
-          found = true;
-          break;
-      }
-    }
-  }
-
-  //Stop accepting traffic from these ips
-  for (auto ip : partition_ips) {
+  //Stop accepting traffic from these node names
+  for (auto ip : nodes) {
     system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
   }
   
   return true;
+  //when to return false?
+}
+
+
+bool Config::healNodes(const std::vector<std::string>& nodes) {
+  for (auto ip: nodes) {
+    system(("sudo iptables -A INPUT -s " + ip + " -j ACCEPT").c_str());
+  }
+  return true;
+  //when to return false?
+
 }
