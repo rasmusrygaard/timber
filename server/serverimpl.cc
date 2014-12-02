@@ -78,7 +78,7 @@ std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
-
+ 
   auto group1_nodes = arg->group1;
   auto group2_nodes = arg->group2;
 
@@ -91,23 +91,50 @@ api_v1_server::makePartition(std::unique_ptr<Partition> arg)
   for (auto num : group2_nodes) {
     group2.push_back("n" + std::to_string(num));
   }
-
   try {
     bool in_group1;
     in_group1 = is_current_node_in_group1(group1);
     if(in_group1) {
-      Config::partitionNodes(group2);
+      *res = Config::partitionNodes(group2);
     } else {
-      Config::partitionNodes(group1);
+      *res = Config::partitionNodes(group1);
     }
   } catch (std::exception &e) {
       if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
   }
 
+
+
+  // Fill in function body here
   *res = true;
   return res;
 }
 
+std::unique_ptr<bool>
+api_v1_server::splitCluster(std::unique_ptr<Partition> arg)
+{
+  std::unique_ptr<bool> res(new bool);
+
+  *res = true;
+  return res;
+}
+
+
+int
+find_num_nodes()
+{
+  std::ifstream f("/etc/hosts", std::fstream::in | std::fstream::app | std::fstream::out);
+  if (f.fail()) return 0;
+  std::string line;
+  int count = 0;
+  while (std::getline(f,line)) {
+    size_t idx = line.find("logcabin");
+    if (idx != std::string::npos) {
+        count++;
+    }
+  }
+  return count;
+}
 
 
 std::unique_ptr<bool>
@@ -115,7 +142,14 @@ api_v1_server::healPartition()
 {
   std::unique_ptr<bool> res(new bool);
 
-  // Fill in function body here
+  int num_nodes = find_num_nodes();
+  std::vector<std::string> nodes;
+  for (int i=1; i<=num_nodes; i++) {
+    nodes.push_back("n" + std::to_string(i));
+  }
 
+  *res = Config::healNodes(nodes);
+  
+  *res = true;
   return res;
 }

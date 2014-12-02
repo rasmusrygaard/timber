@@ -124,13 +124,25 @@ Client::run(const RaftImplementation& implementation, std::vector<Node> nodes, c
 
 bool
 //Client::makePartition(std::vector<Node> private_ips1, std::vector<Node> private_ips2)
-Client::makePartition(std::vector<int> private_ips1, std::vector<int> private_ips2)
+Client::makePartition(std::vector<int> gr1, std::vector<int> gr2)
 {
-    Partition partition = getPartition(private_ips1, private_ips2);
+    Partition arg = getPartition(gr1, gr2);
 
-    auto r = client->makePartition(partition);
+    auto r = client->makePartition(arg);
+    std::cout << (*r == true) << std::endl;
     if (*r == false)
         return false;
 
+    return true;
+}
+
+bool
+Client::heal_cluster()
+{
+    auto r = client->healPartition();
+    std::cout << ("here") << std::endl;
+
+    if (*r == false)
+        return false;
     return true;
 }

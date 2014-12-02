@@ -119,15 +119,13 @@ Cmd_Partition(int argc, const char* argv[])
     //Gets all the nodes
     std::vector<Node> nodes = readConfig();
     int num_nodes = nodes.size();
-/*
-    std::vector<Node> group1;
-    std::vector<Node> group2;
-*/
+
     std::vector<int> group1;
     std::vector<int> group2;
 
     //splits the nodes in half
-    for(int i=1; i <= nodes.size()/2; i++) {
+    int start = 1;
+    for(int i=start; i <= nodes.size()/2; i++) {
         //group1.push_back(nodes[i]);
         group1.push_back(i);
     }
@@ -147,6 +145,17 @@ void
 Cmd_SnubNodes(int argc, const char* argv[])
 {
     //Fill in function body
+
+}
+
+void
+Cmd_Heal_Cluster(int argc, const char* argv[])
+{
+    std::vector<Node> nodes = readConfig();
+    int num_nodes = nodes.size();
+    for (int i=0; i<clients.size(); i++) {
+        clients[i]->heal_cluster();
+    }
 }
 
 
@@ -186,6 +195,8 @@ DispatchCommand(char *buf)
         Cmd_Partition(argc, (const char**)argv);
     } else if (cmd == "snub_nodes") {
         Cmd_SnubNodes(argc, (const char**)argv);
+    } else if (cmd == "heal_cluster") {
+        Cmd_Heal_Cluster(argc, (const char**)argv);
     } else if (cmd == "#") {
         // Ignore comments
     } else if (cmd != "") {
