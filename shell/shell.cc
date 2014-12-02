@@ -104,7 +104,7 @@ Cmd_Partition(int argc, const char* argv[])
     std::vector<int> group2;
 
     //splits the nodes in half
-    int start = 0;
+    int start = 1;
     for(int i=start; i <= nodes.size()/2; i++) {
         //group1.push_back(nodes[i]);
         group1.push_back(i);
