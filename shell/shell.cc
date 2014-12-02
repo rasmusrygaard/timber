@@ -67,7 +67,7 @@ Client_Setup(Client* client,
              const RaftImplementation& implementation,
              const std::vector<Node>& nodes,
              const int id) {
-    client->install(LogCabin, nodes, id);
+    client->install(implementation, nodes, id);
 }
 
 void
@@ -100,6 +100,14 @@ Cmd_Etcd(int argc, const char* argv[])
     for (int i = 0; i < clients.size(); ++i) {
         std::cout << "Setting up Etcd on client " << i + 1 << std::endl;
         threads[i] = std::thread(&Client_Setup, clients[i], Etcd, nodes, i + 1);
+    }
+    for (int i = 0; i < threads.size(); ++i) {
+        std::cout << "Joining thread " << i << "." << std::endl;
+        threads[i].join();
+    }
+    for (int i = 0; i < clients.size(); ++i) {
+        std::cout << "Running etcd on server " << i << "." << std::endl;
+        clients[i]->run(Etcd, nodes, i + 1);
     }
 }
 

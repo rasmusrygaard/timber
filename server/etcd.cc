@@ -34,7 +34,7 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
        << "-advertise-client-urls http://" << public_ip << ":" << ETCD_CLIENT_PORT << " \\ "
        << "-listen-client-urls http://0.0.0.0:" << ETCD_CLIENT_PORT << " \\ "
        << "-initial-cluster " << joinPrivateIPs(cluster) << " \\ "
-       << "-initial-cluster-state new &";
+       << "-initial-cluster-state new > etcd_server.log &";
     system(ss.str().c_str());
 }
 
