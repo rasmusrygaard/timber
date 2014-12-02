@@ -18,5 +18,6 @@ void Util::run_cmd(const std::string& cmd) {
 void Util::run_cmd_async(const std::string& cmd) {
     std::cout << "Running async: '" << cmd << "'" << std::endl;
     std::thread t(Util::run_cmd_as_thread, cmd);
+    t.detach();
     std::cout << "Done running async." << std::endl;
 }
