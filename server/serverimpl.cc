@@ -3,7 +3,7 @@
 
 #include "server/serverimpl.hh"
 #include "LogCabinWrapper.h"
-#include "Etcd.h"
+#include "etcd.h"
 #include "config.h"
 #include <string>
 #include <iostream>

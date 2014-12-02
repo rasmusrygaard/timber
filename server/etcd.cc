@@ -6,7 +6,7 @@
 #include <sys/types.h>
 
 
-#include "server/Etcd.h"
+#include "server/etcd.h"
 
 const std::string ETCD_SCRIPTS_DIR = "~/timber/etcd/";
 const std::string ETCD_DIR = "~/etcd/";
