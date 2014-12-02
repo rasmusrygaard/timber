@@ -43,7 +43,7 @@ Etcd::joinPrivateIPs(const std::unique_ptr<ClusterDesc>& cluster) {
     std::stringstream ss;
     for (int i = 1; i <= cluster->private_ips.nodes.size(); ++i) {
         if (i > 1) ss << ";";
-        ss << "n" << i << "=http://" << cluster->private_ips.nodes[i - 1] << ETCD_PEER_PORT;
+        ss << "n" << i << "=http://" << cluster->private_ips.nodes[i - 1] << ":" << ETCD_PEER_PORT;
     }
     return ss.str();
 }

@@ -14,11 +14,15 @@ def instance_public_ips(conn, ids):
 
 def run_script(conn, instance_ids, scriptfile):
     ips = instance_public_ips(conn, instance_ids)
-    copy_cmds = ["/usr/bin/ssh -i 224WKeys.pem -o StrictHostKeyChecking=no ubuntu@" + ip + " bash -s < bootstrap.sh" for ip in ips]
+    copy_cmds = ["/usr/bin/ssh -i 224WKeys.pem -o StrictHostKeyChecking=no ubuntu@%s bash -s" % ip for ip in ips]
 
+    processes = []
     for cmd in copy_cmds:
         print cmd
-        os.system(cmd)
+        processes.append(subprocess.Popen(cmd.split(' '), stdin=open('bootstrap.sh')))
+
+    for process in processes:
+        process.wait()
 
 
 if not os.path.isfile('timber.config'):
