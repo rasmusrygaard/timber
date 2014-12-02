@@ -153,9 +153,10 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
 {
     std::vector<Node> nodes = readConfig();
     int num_nodes = nodes.size();
-    for (int i=0; i<clients.size(); i++) {
+    /*for (int i=0; i<clients.size(); i++) {
         clients[i]->heal_cluster();
     }
+    */
 }
 
 

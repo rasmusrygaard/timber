@@ -140,8 +140,9 @@ find_num_nodes()
 std::unique_ptr<bool>
 api_v1_server::healPartition()
 {
-  std::unique_ptr<bool> res(new bool);
 
+  std::unique_ptr<bool> res(new bool);
+/*
   int num_nodes = find_num_nodes();
   std::vector<std::string> nodes;
   for (int i=1; i<=num_nodes; i++) {
@@ -149,7 +150,8 @@ api_v1_server::healPartition()
   }
 
   *res = Config::healNodes(nodes);
-  
+  */
   *res = true;
   return res;
+  
 }
