@@ -125,6 +125,7 @@ void
 Cmd_SnubNodes(int argc, const char* argv[])
 {
     //Fill in function body
+
 }
 
 void
@@ -133,7 +134,7 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
     std::vector<Node> nodes = readConfig();
     int num_nodes = nodes.size();
     for (int i=0; i<clients.size(); i++) {
-        clients[i]->heal_cluster(num_nodes);
+        clients[i]->heal_cluster();
     }
 }
 

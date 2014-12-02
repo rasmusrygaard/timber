@@ -31,6 +31,6 @@ program server_api {
         bool run(ClusterDesc) = 2;
 		bool makePartition(Partition) = 3;
 		bool splitCluster(Partition) = 4;
-		bool healPartition(int) = 5;
+		bool healPartition(void) = 5;
   } = 1;
 } = 0x40048086;

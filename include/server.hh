@@ -237,8 +237,8 @@ struct api_v1 {
     using interface_type = api_v1;
     static constexpr std::uint32_t proc = 5;
     static constexpr const char *proc_name = "healPartition";
-    using arg_type = int;
-    using arg_wire_type = int;
+    using arg_type = void;
+    using arg_wire_type = xdr::xdr_void;
     using res_type = bool;
     using res_wire_type = bool;
     
@@ -250,8 +250,8 @@ struct api_v1 {
     
     template<typename C, typename DropIfVoid, typename...A> static auto
     dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
-    decltype(c.healPartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
-      return c.healPartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    decltype(c.healPartition(std::forward<A>(a)...)) {
+      return c.healPartition(std::forward<A>(a)...);
     }
   };
 
