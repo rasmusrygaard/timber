@@ -49,10 +49,16 @@ Config::get_hostname()
  * Takes in std::vector of nodes ("n1"..."n5") to partition.
  * The function assumes that the current node is _not_ in nodeList.
  */
-bool Config::partitionNodes(const std::vector<std::string>& nodes) {
+bool Config::partitionNodes(const std::vector<std::string>& nodes, const bool is_partition) {
   //Stop accepting traffic from these node names
-  for (auto ip : nodes) {
-    system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
+  if (is_partition) {
+    for (auto ip : nodes) {
+      system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
+    }
+  } else {
+      system("sudo iptables -F");
+      system("sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT");
+      system("sudo iptables -A INPUT -p tcp --dport 61023 -j ACCEPT");
   }
 
   return true;
@@ -61,10 +67,15 @@ bool Config::partitionNodes(const std::vector<std::string>& nodes) {
 
 
 bool Config::healNodes(const std::vector<std::string>& nodes) {
-  for (auto ip: nodes) {
+  //accept traffic from all nodes in the cluster
+  /*for (auto ip: nodes) {
     system(("sudo iptables -A INPUT -s " + ip + " -j ACCEPT").c_str());
-  }
-  return true;
+  }*/
+  system("sudo iptables -F");
+  system("sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT");
+  system("sudo iptables -A INPUT -p tcp --dport 61023 -j ACCEPT");
+
+  return false;
   //when to return false?
 
 }

@@ -211,34 +211,12 @@ struct api_v1 {
     }
   };
 
-  struct splitCluster_t {
-    using interface_type = api_v1;
-    static constexpr std::uint32_t proc = 4;
-    static constexpr const char *proc_name = "splitCluster";
-    using arg_type = Partition;
-    using arg_wire_type = Partition;
-    using res_type = bool;
-    using res_wire_type = bool;
-    
-    template<typename C, typename...A> static auto
-    dispatch(C &&c, A &&...a) ->
-    decltype(c.splitCluster(std::forward<A>(a)...)) {
-      return c.splitCluster(std::forward<A>(a)...);
-    }
-    
-    template<typename C, typename DropIfVoid, typename...A> static auto
-    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
-    decltype(c.splitCluster(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
-      return c.splitCluster(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
-    }
-  };
-
   struct healPartition_t {
     using interface_type = api_v1;
-    static constexpr std::uint32_t proc = 5;
+    static constexpr std::uint32_t proc = 4;
     static constexpr const char *proc_name = "healPartition";
-    using arg_type = void;
-    using arg_wire_type = xdr::xdr_void;
+    using arg_type = int;
+    using arg_wire_type = int;
     using res_type = bool;
     using res_wire_type = bool;
     
@@ -250,8 +228,8 @@ struct api_v1 {
     
     template<typename C, typename DropIfVoid, typename...A> static auto
     dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
-    decltype(c.healPartition(std::forward<A>(a)...)) {
-      return c.healPartition(std::forward<A>(a)...);
+    decltype(c.healPartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.healPartition(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
     }
   };
 
@@ -268,9 +246,6 @@ struct api_v1 {
       t.template dispatch<makePartition_t>(std::forward<A>(a)...);
       return true;
     case 4:
-      t.template dispatch<splitCluster_t>(std::forward<A>(a)...);
-      return true;
-    case 5:
       t.template dispatch<healPartition_t>(std::forward<A>(a)...);
       return true;
     }
@@ -296,12 +271,6 @@ struct api_v1 {
     makePartition(_XDRARGS &&..._xdr_args) ->
     decltype(this->_XDRBASE::template invoke<makePartition_t>(_xdr_args...)) {
       return this->_XDRBASE::template invoke<makePartition_t>(_xdr_args...);
-    }
-
-    template<typename..._XDRARGS> auto
-    splitCluster(_XDRARGS &&..._xdr_args) ->
-    decltype(this->_XDRBASE::template invoke<splitCluster_t>(_xdr_args...)) {
-      return this->_XDRBASE::template invoke<splitCluster_t>(_xdr_args...);
     }
 
     template<typename..._XDRARGS> auto

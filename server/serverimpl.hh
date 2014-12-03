@@ -14,8 +14,7 @@ public:
   std::unique_ptr<bool> install(std::unique_ptr<ClusterDesc> arg);
   std::unique_ptr<bool> run(std::unique_ptr<ClusterDesc> arg);
   std::unique_ptr<bool> makePartition(std::unique_ptr<Partition> arg);
-  std::unique_ptr<bool> splitCluster(std::unique_ptr<Partition> arg);
-  std::unique_ptr<bool> healPartition();
+  std::unique_ptr<bool> healPartition(std::unique_ptr<int> arg);
 };
 
 #endif // !__XDR_SERVER_SERVERIMPL_HH_INCLUDED__

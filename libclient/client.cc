@@ -129,7 +129,7 @@ Client::makePartition(std::vector<int> gr1, std::vector<int> gr2)
     Partition arg = getPartition(gr1, gr2);
 
     auto r = client->makePartition(arg);
-    std::cout << (*r == true) << std::endl;
+    //std::cout << (*r == true) << std::endl;
     if (*r == false)
         return false;
 
@@ -137,14 +137,15 @@ Client::makePartition(std::vector<int> gr1, std::vector<int> gr2)
 }
 
 bool
-Client::heal_cluster()
+Client::heal_cluster(const int num_nodes)
 {
-    /*
-    auto r = client->healPartition();
-    std::cout << ("here") << std::endl;
+    int a = num_nodes;
+    auto r = client->healPartition(a);
+
+    std::cout << (*r == true) << std::endl;
 
     if (*r == false)
         return false;
-    */
+    
     return true;
 }

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <algorithm>
 
 #include <xdrpp/srpc.h>
 
@@ -112,7 +113,11 @@ Cmd_Etcd(int argc, const char* argv[])
 }
 
 
-/* Partitions the Network */
+/* 
+ * Partitions the Network in half. I.e. If there are nodes
+ * n1... n5 in the cluster, nodes n1, n2 will be partitioned
+ * from n3, n4, n5.
+ */
 void
 Cmd_Partition(int argc, const char* argv[])
 {
@@ -126,12 +131,10 @@ Cmd_Partition(int argc, const char* argv[])
     //splits the nodes in half
     int start = 1;
     for(int i=start; i <= nodes.size()/2; i++) {
-        //group1.push_back(nodes[i]);
         group1.push_back(i);
     }
     for(int i=nodes.size()/2 + 1; i<=nodes.size(); i++) {
         group2.push_back(i);
-        //group2.push_back(nodes[i]);
     }
 
     for (int i=0; i<clients.size(); i++) {
@@ -140,23 +143,70 @@ Cmd_Partition(int argc, const char* argv[])
 }
 
 
-/* Snubs specified nodes */
+/* 
+ * Snubs specified nodes specified in command line 
+ * arguments.
+ */
 void
 Cmd_SnubNodes(int argc, const char* argv[])
 {
-    //Fill in function body
+    std::vector<Node> nodes = readConfig();
+    int num_nodes = nodes.size();
 
+    std::vector<int> group1; //nodes specified by command line args
+    std::vector<int> group2;
+
+    int num_args = argc;
+    //put nodes in argv in group 1
+    int start = 1;
+    for (int i=start; i<num_args; i++) {
+        int elem = atoi(argv[i]);
+        std::vector<int>::iterator it = std::find(group1.begin(), group1.end(), elem);
+        if (it == group1.end() || group1.empty()) {
+            group1.push_back(elem);
+        }
+    }
+
+    // Put unspecified nodes in group 2
+    for (int i=start; i<=num_nodes; i++) {
+        std::vector<int>::iterator it = std::find(group1.begin(), group1.end(), i);
+        if (it == group1.end()) {
+            group2.push_back(i);
+        }
+    }
+    for (int i=0; i<clients.size(); i++) {
+       clients[i]->makePartition(group1, group2);
+    }
 }
+
+
 
 void
 Cmd_Heal_Cluster(int argc, const char* argv[])
 {
+    /*
     std::vector<Node> nodes = readConfig();
     int num_nodes = nodes.size();
-    /*for (int i=0; i<clients.size(); i++) {
-        clients[i]->heal_cluster();
+    for (int i=0; i<clients.size(); i++) {
+        clients[i]->heal_cluster(num_nodes);
     }
     */
+    std::vector<Node> nodes = readConfig();
+    int num_nodes = nodes.size();
+
+    std::vector<int> group1;
+    std::vector<int> group2;
+
+    //splits the nodes in half
+    int start = 1;
+    for(int i=start; i <= nodes.size(); i++) {
+        group1.push_back(i);
+    }
+    group2.push_back(0);
+
+    for (int i=0; i<clients.size(); i++) {
+       clients[i]->makePartition(group1, group2);
+    }
 }
 
 
@@ -194,7 +244,7 @@ DispatchCommand(char *buf)
         Cmd_Etcd(argc, (const char**)argv);
     } else if (cmd == "partition") {
         Cmd_Partition(argc, (const char**)argv);
-    } else if (cmd == "snub_nodes") {
+    } else if (cmd == "snubnodes") {
         Cmd_SnubNodes(argc, (const char**)argv);
     } else if (cmd == "heal_cluster") {
         Cmd_Heal_Cluster(argc, (const char**)argv);

@@ -41,9 +41,41 @@ This also takes a while, but you can keep track of the progress by SSH'ing into 
 The output from the XDR process gets written to that file, so you can easily see what is goin on on the other side.
 
 Once the command finishes on all clusters, you should be able to start storing stuff in LogCabin.
-There's a small demo program in `logcabin/demo/Examples/HelloWorld` on the cluster machines.
+There's a small demo program in `logcabin/Examples/HelloWorld` on the cluster machines.
 If you run it, the script should finish immediately without any errors and you should see no output in your shell.
 If you are `tail`ing the other servers, you might see some snapshots being recorded.
+
+## Partitioning the Cluster
+
+Once you have finished setting up the cluster (i.e. wait until the prompt has been able to write 'Joining thread 0' through 
+'Joining thread (N - 1)'), you should be ready to experiment with partitioning the nodes. 
+
+3 function calls (so far) do this : partition, snubnodes A B C..., and heal_cluster
+
+    partition
+
+This function call splits the cluster in half. So, if you have a cluster with N=6 machines, the system 
+will be split in such a way that n1, n2, and n3 will be able to communicate with each other, but they
+will not be able to communicate with n4, n5, and n6 (and vice versa).
+
+    snubnodes A B
+
+Here 'A' and 'B' are specific nodes identified by an integer. 
+This function places specified nodes in a partition, and places unspecified nodes in a
+different partition.  For example, if you wanted to have n1 and n5 reject traffic from n2, 
+n3, and n4 but accept traffic from each other, you would call `snubnodes 1 5`, which 
+partitions n1 and n5 from n2, n3 and n4.
+
+    heal_cluster
+
+This function will reset the iptables chains to their defaults, thereby accepting all traffic from 
+all of the nodes in the cluster.
+
+You can keep track of which computers can talk to each other by SSH'ing into each instance and running
+`sudo iptables -L`. This lists all of the network configuration rules.
+
+
+
 
 ## Shutting Down The Cluster
 
