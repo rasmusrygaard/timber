@@ -84,40 +84,34 @@ api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 
   std::vector<std::string> group1;
   std::vector<std::string> group2;
-
+  bool heal = false;
   for (auto num : group1_nodes) {
     group1.push_back("n" + std::to_string(num));
   }
   for (auto num : group2_nodes) {
+    if (num==0) heal = true;
     group2.push_back("n" + std::to_string(num));
   }
-  try {
-    bool in_group1;
-    in_group1 = is_current_node_in_group1(group1);
-    if(in_group1) {
-      *res = Config::partitionNodes(group2);
-    } else {
-      *res = Config::partitionNodes(group1);
+
+  if (heal) {
+    *res = Config::partitionNodes(group1, false);
+  } else {
+    try {
+      bool in_group1;
+      in_group1 = is_current_node_in_group1(group1);
+      if(in_group1) {
+        *res = Config::partitionNodes(group2, true);
+      } else {
+        *res = Config::partitionNodes(group1, true);
+      }
+    } catch (std::exception &e) {
+        if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
     }
-  } catch (std::exception &e) {
-      if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
   }
-
-
-
-  // Fill in function body here
-  *res = true;
+  *res = heal;
   return res;
 }
 
-std::unique_ptr<bool>
-api_v1_server::splitCluster(std::unique_ptr<Partition> arg)
-{
-  std::unique_ptr<bool> res(new bool);
-
-  *res = true;
-  return res;
-}
 
 
 int
@@ -137,21 +131,29 @@ find_num_nodes()
 }
 
 
+
 std::unique_ptr<bool>
 api_v1_server::healPartition()
 {
-
   std::unique_ptr<bool> res(new bool);
-/*
+  
   int num_nodes = find_num_nodes();
+  if (num_nodes == 0) {
+    *res = false;
+    return res;
+  }
+
   std::vector<std::string> nodes;
   for (int i=1; i<=num_nodes; i++) {
     nodes.push_back("n" + std::to_string(i));
   }
+  /*for (int i=1; i<=5; i++) {
+    system(("sudo iptables -A INPUT -s n" + std::to_string(i) + " -j ACCEPT").c_str());
+  }*/
 
-  *res = Config::healNodes(nodes);
-  */
-  *res = true;
+  //*res = Config::healNodes(nodes);
+  *res = false;
+
   return res;
-  
 }
+

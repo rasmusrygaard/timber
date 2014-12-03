@@ -18,7 +18,7 @@ public:
    * Takes in std::vector of nodes ("n1"..."n5") to partition.
    * The function assumes that the current node is _not_ in nodeList.
    */
-  static bool partitionNodes(const std::vector<std::string>& nodes);
+    static bool partitionNodes(const std::vector<std::string>& nodes, const bool is_partition);
 
   /*
    * Returns the host ip address of the current client node.

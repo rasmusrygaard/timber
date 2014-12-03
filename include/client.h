@@ -91,7 +91,7 @@ public:
 
     bool makePartition(std::vector<int> gr1, std::vector<int> gr2);
     
-    bool heal_cluster();
+    bool heal_cluster(const int num_nodes);
 
 private:
     xdr::srpc_client<api_v1> *client;
