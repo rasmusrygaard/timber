@@ -51,12 +51,14 @@ Config::get_hostname()
  */
 bool Config::partitionNodes(const std::vector<std::string>& nodes, const bool is_partition) {
   //Stop accepting traffic from these node names
-  for (auto ip : nodes) {
-    if (is_partition) 
+  if (is_partition) {
+    for (auto ip : nodes) {
       system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
-    else 
-      system(("sudo iptables -A INPUT -s " + ip + " -j ACCEPT").c_str());
-
+    }
+  } else {
+      system("sudo iptables -F");
+      system("sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT");
+      system("sudo iptables -A INPUT -p tcp --dport 61023 -j ACCEPT");
   }
 
   return true;
@@ -66,9 +68,12 @@ bool Config::partitionNodes(const std::vector<std::string>& nodes, const bool is
 
 bool Config::healNodes(const std::vector<std::string>& nodes) {
   //accept traffic from all nodes in the cluster
-  for (auto ip: nodes) {
+  /*for (auto ip: nodes) {
     system(("sudo iptables -A INPUT -s " + ip + " -j ACCEPT").c_str());
-  }
+  }*/
+  system("sudo iptables -F");
+  system("sudo iptables -A INPUT -p tcp --dport 6160 -j ACCEPT");
+  system("sudo iptables -A INPUT -p tcp --dport 61023 -j ACCEPT");
 
   return false;
   //when to return false?

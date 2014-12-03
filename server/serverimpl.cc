@@ -108,7 +108,6 @@ api_v1_server::makePartition(std::unique_ptr<Partition> arg)
         if (e.what() != NULL) { std::cerr << e.what() << std::endl; }
     }
   }
-  *res = heal;
   return res;
 }
 
