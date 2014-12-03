@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+#include <algorithm>
 
 #include <xdrpp/srpc.h>
 
@@ -160,14 +161,16 @@ Cmd_SnubNodes(int argc, const char* argv[])
     int start = 1;
     for (int i=start; i<num_args; i++) {
         int elem = atoi(argv[i]);
-        if (std::find(group1.begin(), group1.end(), elem) == group1.end()) {
+        std::vector<int>::iterator it = std::find(group1.begin(), group1.end(), elem);
+        if (it == group1.end() || group1.empty()) {
             group1.push_back(elem);
         }
     }
 
     // Put unspecified nodes in group 2
     for (int i=start; i<=num_nodes; i++) {
-        if (std::find(group1.begin(), group1.end(), i) == group1.end()) {
+        std::vector<int>::iterator it = std::find(group1.begin(), group1.end(), i);
+        if (it == group1.end()) {
             group2.push_back(i);
         }
     }

@@ -139,13 +139,13 @@ Client::makePartition(std::vector<int> gr1, std::vector<int> gr2)
 bool
 Client::heal_cluster(const int num_nodes)
 {
-    /*
-    auto r = client->healPartition(xdr::xdr_void{});
+    int a = num_nodes;
+    auto r = client->healPartition(a);
 
     std::cout << (*r == true) << std::endl;
 
     if (*r == false)
         return false;
-    */
+    
     return true;
 }
