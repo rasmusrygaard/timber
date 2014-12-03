@@ -52,6 +52,7 @@ Config::get_hostname()
 bool Config::partitionNodes(const std::vector<std::string>& nodes, const bool is_partition) {
   //Stop accepting traffic from these node names
   if (is_partition) {
+    system("sudo iptables -F");
     for (auto ip : nodes) {
       system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
     }
