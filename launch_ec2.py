@@ -20,11 +20,11 @@ def instance_private_ips(conn, ids):
 
 
 def launch_instances(conn, n):
-    reservation = conn.run_instances('ami-9eaa1cf6',
+    reservation = conn.run_instances('ami-fecd5696',
                                      min_count=n,
                                      max_count=n,
                                      key_name='224WKeys',
-                                     instance_type="t2.micro",
+                                     instance_type="m3.medium",
                                      subnet_id='subnet-191d4231',
                                      security_group_ids=['sg-721a0417'] ) # 'timber'
     try:
@@ -33,8 +33,8 @@ def launch_instances(conn, n):
 
         while True:
             instance_statuses = conn.get_all_instance_status(instance_ids=ids)
-            states = [instance.state_name for instance in instance_statuses]
-            done = all(status == 'running' for status in states) and len(states) is n
+            states = [instance.instance_status.status for instance in instance_statuses]
+            done = all(status == 'ok' for status in states) and len(states) is n
             if done:
                 break
             time.sleep(5)

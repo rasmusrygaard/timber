@@ -22,10 +22,8 @@ api_v1_server::install(std::unique_ptr<ClusterDesc> cluster)
     if (cluster->type == LogCabinType) {
         // Add logcabin hosts.
         Config::addHosts(cluster, "logcabin", false);
-
-        LogCabinWrapper::initialize(cluster);
     } else if (cluster->type == EtcdType) {
-        Etcd::initialize(cluster);
+        /* Empty */
     }
     *res = true; //TODO: failure modes?
     return res;
@@ -78,7 +76,7 @@ std::unique_ptr<bool>
 api_v1_server::makePartition(std::unique_ptr<Partition> arg)
 {
   std::unique_ptr<bool> res(new bool);
- 
+
   auto group1_nodes = arg->group1;
   auto group2_nodes = arg->group2;
 
@@ -135,7 +133,7 @@ std::unique_ptr<bool>
 api_v1_server::healPartition(std::unique_ptr<int> arg)
 {
   std::unique_ptr<bool> res(new bool);
-  
+
   //int num_nodes = find_num_nodes();
   int num_nodes = *arg;
   if (num_nodes == 0) {
