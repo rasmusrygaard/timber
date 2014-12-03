@@ -7,6 +7,7 @@
 
 
 #include "server/etcd.h"
+#include "util.h"
 
 const std::string ETCD_SCRIPTS_DIR = "~/timber/etcd/";
 const std::string ETCD_DIR = "~/etcd/";
@@ -16,7 +17,7 @@ const int ETCD_CLIENT_PORT = 4001;
 void
 Etcd::initialize(const std::unique_ptr<ClusterDesc>& cluster) {
     std::cout << "Running init.sh for Etcd" << std::endl;
-    system(("bash " + ETCD_SCRIPTS_DIR + "init.sh").c_str());
+    Util::run_cmd("bash " + ETCD_SCRIPTS_DIR + "init.sh");
     std::cout << "Done running init.sh for Etcd" << std::endl;
 }
 
@@ -34,8 +35,8 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
        << "-advertise-client-urls http://" << public_ip << ":" << ETCD_CLIENT_PORT << " "
        << "-listen-client-urls http://0.0.0.0:" << ETCD_CLIENT_PORT << " "
        << "-initial-cluster " << joinPrivateIPs(cluster) << " "
-       << "-initial-cluster-state new &> etcd_server.log &";
-    system(ss.str().c_str());
+       << "-initial-cluster-state new &> etcd_server.log";
+    Util::run_cmd_async(ss.str());
     std::cout << "Done with etcd server on node " << cluster->nodeId << std::endl;
 }
 
@@ -43,7 +44,7 @@ std::string
 Etcd::joinPrivateIPs(const std::unique_ptr<ClusterDesc>& cluster) {
     std::stringstream ss;
     for (int i = 1; i <= cluster->private_ips.nodes.size(); ++i) {
-        if (i > 1) ss << ";";
+        if (i > 1) ss << ",";
         ss << "n" << i << "=http://" << cluster->private_ips.nodes[i - 1] << ":" << ETCD_PEER_PORT;
     }
     return ss.str();
