@@ -6,12 +6,16 @@ private_ips = config.map { |line| line.split[2] }
 
 clients = private_ips.map { |ip| Etcd.client(host: ip, port: 4001, allow_redirect: true) }
 count = 0
+start = Time.now
+arr = JSON.parse(client.set('/result').value)
+DURATION = 50 # second
 clients.cycle do |client|
-  while true
+  while (Time.now - start) < DURATION
     begin
       arr = JSON.parse(client.get('/result').value)
     rescue Etcd::KeyNotFound
       arr = []
+      client.set('/result', value: [].to_s)
     end
     arr << count
     begin
@@ -25,10 +29,8 @@ clients.cycle do |client|
       break # Break out of the while loop to move to the next client
     end
     count += 1
-    if count > 200
-      break
-    end
   end
+  break if (Time.now - start) >= DURATION
 end
 
 arr = JSON.parse(client.get('/result').value)

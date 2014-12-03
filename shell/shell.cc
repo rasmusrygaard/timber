@@ -112,8 +112,30 @@ Cmd_Etcd(int argc, const char* argv[])
     }
 }
 
+void
+Client_Partition(Client* client,
+                 const std::vector<int>& group1,
+                 const std::vector<int>& group2) {
+    client->makePartition(group1, group2);
+}
 
-/* 
+void
+Partition(const std::vector<Client*> clients,
+          const std::vector<int>& group1,
+          const std::vector<int>& group2) {
+
+    std::vector<std::thread> threads(clients.size());
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i] = std::thread(&Client_Partition, clients[i], group1, group2);
+    }
+
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i].join();
+    }
+}
+
+
+/*
  * Partitions the Network in half. I.e. If there are nodes
  * n1... n5 in the cluster, nodes n1, n2 will be partitioned
  * from n3, n4, n5.
@@ -136,15 +158,12 @@ Cmd_Partition(int argc, const char* argv[])
     for(int i=nodes.size()/2 + 1; i<=nodes.size(); i++) {
         group2.push_back(i);
     }
-
-    for (int i=0; i<clients.size(); i++) {
-       clients[i]->makePartition(group1, group2);
-    }
+    Partition(clients, group1, group2);
 }
 
 
-/* 
- * Snubs specified nodes specified in command line 
+/*
+ * Snubs specified nodes specified in command line
  * arguments.
  */
 void
@@ -174,9 +193,7 @@ Cmd_SnubNodes(int argc, const char* argv[])
             group2.push_back(i);
         }
     }
-    for (int i=0; i<clients.size(); i++) {
-       clients[i]->makePartition(group1, group2);
-    }
+    Partition(clients, group1, group2);
 }
 
 
@@ -203,10 +220,7 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
         group1.push_back(i);
     }
     group2.push_back(0);
-
-    for (int i=0; i<clients.size(); i++) {
-       clients[i]->makePartition(group1, group2);
-    }
+    Partition(clients, group1, group2);
 }
 
 
@@ -248,6 +262,9 @@ DispatchCommand(char *buf)
         Cmd_SnubNodes(argc, (const char**)argv);
     } else if (cmd == "heal_cluster") {
         Cmd_Heal_Cluster(argc, (const char**)argv);
+    } else if (cmd == "sleep") {
+        int time = std::stoi(argv[1]);
+        sleep(time);
     } else if (cmd == "#") {
         // Ignore comments
     } else if (cmd != "") {
@@ -274,14 +291,13 @@ Prompt()
 void
 RunScript(const char *file)
 {
-    char buf[DEBUG_MAX_LINE];
-    fstream fin {file};
+    ifstream f(file);
 
-    while (!fin.eof()) {
-        // read input
-        fin.getline((char *)&buf, DEBUG_MAX_LINE);
+    std::string line;
 
-        DispatchCommand(buf);
+    while (getline(f, line)) {
+        cout << line << endl;
+        DispatchCommand((char *)line.c_str());
     }
 }
 
@@ -294,7 +310,6 @@ main(int argc, const char *argv[])
         std::vector<Node> nodes = readConfig();
 
         for (Node n : nodes) {
-            cout << "Connecting to " << n.public_ip << endl;
             clients.push_back(new Client());
             clients[clients.size() - 1]->open(n.public_ip);
         }
@@ -310,7 +325,7 @@ main(int argc, const char *argv[])
             cout << "Prompting" << endl;
             Prompt();
         } else {
-            RunScript(argv[2]);
+            RunScript(argv[1]);
         }
     } catch(exception &e) {
         cout << e.what() << endl;

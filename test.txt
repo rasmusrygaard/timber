@@ -1,0 +1,10 @@
+sleep 5
+partition
+sleep 10
+heal_cluster
+sleep 10
+partition
+sleep 10
+heal_cluster
+sleep 5
+exit
