@@ -18,6 +18,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <ctime>
 
 #include "Client/Client.h"
 
@@ -25,6 +26,7 @@ namespace {
 
 using LogCabin::Client::Cluster;
 using LogCabin::Client::Tree;
+using LogCabin::Client::Result;
 
 /**
  * Parses argv for the main function.
@@ -35,6 +37,7 @@ class OptionParser {
         : argc(argc)
         , argv(argv)
         , cluster("logcabin:61023")
+        , duration(0)
         , length(1000)
         , verbose(false)
     {
@@ -43,10 +46,11 @@ class OptionParser {
                {"cluster",  required_argument, NULL, 'c'},
                {"help",  no_argument, NULL, 'h'},
                {"length", required_argument, NULL, 'l'},
+               {"duration", required_argument, NULL, 'd'},
                {"verbose",  no_argument, NULL, 'v'},
                {0, 0, 0, 0}
             };
-            int c = getopt_long(argc, argv, "c:hl:v", longOptions, NULL);
+            int c = getopt_long(argc, argv, "c:d:hl:v", longOptions, NULL);
 
             // Detect the end of the options.
             if (c == -1)
@@ -56,6 +60,12 @@ class OptionParser {
                 case 'c':
                     cluster = optarg;
                     break;
+                case 'd':
+                {
+                    std::stringstream ss(optarg);
+                    ss >> duration;
+                    break;
+                }
                 case 'l':
                 {
                     std::stringstream ss(optarg);
@@ -84,6 +94,9 @@ class OptionParser {
         std::cout << "  -c, --cluster <address> "
                   << "The network address of the LogCabin cluster "
                   << "(default: logcabin:61023)" << std::endl;
+        std::cout << "  -d, --duration <milliseconds> "
+                  << "The duration for which to write (in ms), superceeds length"
+                  << "(default 0, meaning unbounded)" << std::endl;
         std::cout << "  -l, --length <length> "
                   << "The number of ints to write to the test file "
                   << "(default 1000)" << std::endl;
@@ -97,6 +110,7 @@ class OptionParser {
     char**& argv;
     std::string cluster;
     int length;
+    int duration;
     bool verbose;
 };
 
@@ -115,6 +129,29 @@ verifyContents(std::string contents, int length, bool verbose) {
     assert(contents == ss.str());
 }
 
+void
+writeInt(int i, Tree tree, bool verbose) {
+    std::string contents;
+    Result res = tree.read("/intlist", contents);
+    while (res.status != LogCabin::Client::Status::OK) {
+        if (verbose) {
+            std::cout << "Read Error " << res.status << ": " << res.error << std::endl; 
+        }
+        res = tree.read("/intlist", contents);
+    }
+    // if (verbose)
+    //     std::cout << "Contents so far: " << contents << std::endl;
+    std::stringstream ss;
+    ss << i << ' ';
+    res = tree.write("/intlist", contents + ss.str());
+    while (res.status != LogCabin::Client::Status::OK) {
+        if (verbose) {
+            std::cout << "Write Error " << res.status << ": " << res.error << std::endl; 
+        }
+        res = tree.write("/intlist", contents + ss.str());
+    }
+}
+
 int
 main(int argc, char** argv)
 {
@@ -122,13 +159,21 @@ main(int argc, char** argv)
     Cluster cluster(options.cluster);
     Tree tree = cluster.getTree();
     tree.writeEx("/intlist", "");
-    for (int i = 0; i < options.length; i++) {
-        std::string contents = tree.readEx("/intlist");
-        if (options.verbose)
-            std::cout << "Contents so far: " << contents << std::endl;
-        std::stringstream ss;
-        ss << i << ' ';
-        tree.writeEx("/intlist", contents + ss.str());
+    if (options.duration == 0) {
+        for (int i = 0; i < options.length; i++) {
+            writeInt(i, tree, options.verbose);
+        }
+    } else {
+        time_t startTime;
+        time(&startTime);
+        time_t currTime = startTime;
+        int i = 0;
+        while (currTime <= startTime + options.duration) {
+            writeInt(i, tree, options.verbose);
+            i++;
+            time(&currTime);
+        }
+        options.length = i;
     }
     std::string contents = tree.readEx("/intlist");
     tree.removeFileEx("/intlist");
