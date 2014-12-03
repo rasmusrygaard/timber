@@ -44,11 +44,12 @@ def launch_instances(conn, n):
         conn.terminate_instances(ids)
         return []
 
-def test_conn(ip, tries=3):
+def test_conn(ip, tries=10):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while tries > 0:
         try:
             s.connect((address, 22))
+            s.close()
         except:
             tries -= 1
             print "Port 22 unavailable, waiting 5 seconds and trying again"

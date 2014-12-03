@@ -35,5 +35,5 @@ arr = JSON.parse(client.get('/result').value)
 puts "Elements in result: #{ arr.size }"
 expected_size = arr.max + 1
 puts "Expected size: #{ expected_size }"
-puts "Writes Droppped: #{ 100 * (1 - (arr.size / expected_size.to_f)) } %"
+puts "Writes Dropped: #{ 100 * (1 - (arr.size / expected_size.to_f)) } %"
 puts "Ghost Writes: #{ 100 * ((arr.size - Set.new(arr).size) / expected_size.to_f) } %"
