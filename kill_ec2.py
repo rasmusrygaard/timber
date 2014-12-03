@@ -14,5 +14,11 @@ f = open('timber.config')
 conn = create_connection()
 ids = [line.split('\t')[0] for line in f]
 
+if os.path.isfile('client.config'):
+	f = open('client.config')
+	clientids = [line.split('\t')[0] for line in f]
+	ids = ids + clientids
+
 terminate_instances(conn, ids)
 os.remove('timber.config')
+os.remove('client.config')

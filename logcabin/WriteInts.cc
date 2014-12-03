@@ -27,6 +27,7 @@ namespace {
 using LogCabin::Client::Cluster;
 using LogCabin::Client::Tree;
 using LogCabin::Client::Result;
+using std::string;
 
 /**
  * Parses argv for the main function.
@@ -129,27 +130,45 @@ verifyContents(std::string contents, int length, bool verbose) {
     assert(contents == ss.str());
 }
 
+enum class Op {
+    Read,
+    Write,
+    Rm
+};
+
+void
+retryOp(Tree tree, Op op, const string& name, string& contents = "") {
+    while (true) {
+        Result res;
+        string opStr;
+        if (op == Read) {
+            opStr = "Read";
+            res = tree.read(name, contents);
+        } else if (op == Write) {
+            opStr = "Write";
+            res = tree.write(name, contents);
+        } else if (op == Rm) {
+            opStr = "Remove";
+            res = tree.removeFile(name);
+        }
+
+        if (res.status != LogCabin::Client::Status::OK) {
+            std::cout << opStr << " Error " << res.status << ": " << res.error << std::endl;
+        } else {
+            return;
+        }
+    }
+}
+
 void
 writeInt(int i, Tree tree, bool verbose) {
     std::string contents;
-    Result res = tree.read("/intlist", contents);
-    while (res.status != LogCabin::Client::Status::OK) {
-        if (verbose) {
-            std::cout << "Read Error " << res.status << ": " << res.error << std::endl; 
-        }
-        res = tree.read("/intlist", contents);
-    }
+    retryOp(tree, Read, "/intlist", contents);
     // if (verbose)
     //     std::cout << "Contents so far: " << contents << std::endl;
     std::stringstream ss;
     ss << i << ' ';
-    res = tree.write("/intlist", contents + ss.str());
-    while (res.status != LogCabin::Client::Status::OK) {
-        if (verbose) {
-            std::cout << "Write Error " << res.status << ": " << res.error << std::endl; 
-        }
-        res = tree.write("/intlist", contents + ss.str());
-    }
+    retryOp(tree, Write, "/intlist", contents + ss.str());
 }
 
 int
@@ -158,7 +177,7 @@ main(int argc, char** argv)
     OptionParser options(argc, argv);
     Cluster cluster(options.cluster);
     Tree tree = cluster.getTree();
-    tree.writeEx("/intlist", "");
+    retryOp(tree, Write, "/intlist");
     if (options.duration == 0) {
         for (int i = 0; i < options.length; i++) {
             writeInt(i, tree, options.verbose);
@@ -176,7 +195,7 @@ main(int argc, char** argv)
         options.length = i;
     }
     std::string contents = tree.readEx("/intlist");
-    tree.removeFileEx("/intlist");
+    retryOp(tree, Rm, "/intlist");
     verifyContents(contents, options.length, options.verbose);
     return 0;
 }
