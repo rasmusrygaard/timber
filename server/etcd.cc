@@ -8,6 +8,7 @@
 
 #include "server/etcd.h"
 #include "util.h"
+#include "config.h"
 
 const std::string ETCD_SCRIPTS_DIR = "~/timber/etcd/";
 const std::string ETCD_DIR = "~/etcd/";
@@ -30,12 +31,16 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
     std::stringstream ss;
     ss << ETCD_DIR << "etcd "
        << "-name n" << id << " "
-       << "-initial-advertise-peer-urls http://" << private_ip << ":" << ETCD_PEER_PORT << " "
-       << "-listen-peer-urls http://" << private_ip << ":" << ETCD_PEER_PORT << " "
-       << "-advertise-client-urls http://" << public_ip << ":" << ETCD_CLIENT_PORT << " "
-       << "-listen-client-urls http://0.0.0.0:" << ETCD_CLIENT_PORT << " "
-       << "-initial-cluster " << joinPrivateIPs(cluster) << " "
-       << "-initial-cluster-state new &> etcd_server.log";
+       << "-peer-addr " << private_ip << ":" << ETCD_PEER_PORT << " "
+       << "-peer-bind-addr " << private_ip << ":" << ETCD_PEER_PORT << " "
+       << "-addr " << public_ip << ":" << ETCD_CLIENT_PORT << " "
+       << "-bind-addr 0.0.0.0:" << ETCD_CLIENT_PORT << " ";
+    if (cluster->nodeId != 1) {
+        ss << "-peers " << joinPrivateIPs(cluster) << " ";
+    }
+    ss << "-http-write-timeout 1 " << " "
+       << "-http-read-timeout 1 " << " "
+       << "&> etcd_server.log";
     Util::run_cmd_async(ss.str());
     std::cout << "Done with etcd server on node " << cluster->nodeId << std::endl;
 }
@@ -43,9 +48,12 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
 std::string
 Etcd::joinPrivateIPs(const std::unique_ptr<ClusterDesc>& cluster) {
     std::stringstream ss;
-    for (int i = 1; i <= cluster->private_ips.nodes.size(); ++i) {
-        if (i > 1) ss << ",";
-        ss << "n" << i << "=http://" << cluster->private_ips.nodes[i - 1] << ":" << ETCD_PEER_PORT;
+    int count = 0;
+    for (auto private_ip : cluster->private_ips.nodes) {
+        if (private_ip == Config::get_hostname()) continue;
+        if (count > 0) ss << ",";
+        ss << private_ip << ":" << ETCD_PEER_PORT;
+        count++;
     }
     return ss.str();
 }
