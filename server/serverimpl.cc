@@ -22,6 +22,7 @@ api_v1_server::install(std::unique_ptr<ClusterDesc> cluster)
     if (cluster->type == LogCabinType) {
         // Add logcabin hosts.
         Config::addHosts(cluster, "logcabin", false);
+        LogCabinWrapper::initialize(cluster);
     } else if (cluster->type == EtcdType) {
         /* Empty */
     }

@@ -35,7 +35,7 @@ using std::string;
 using std::cout;
 using std::endl;
 using std::ifstream;
-using 
+using std::stringstream;
 
 /**
  * Parses argv for the main function.
@@ -45,7 +45,7 @@ class OptionParser {
     OptionParser(int& argc, char**& argv)
         : argc(argc)
         , argv(argv)
-        , cluster("logcabin:61023")
+        , clusterFile("timber.config")
         , duration(0)
         , length(1000)
         , verbose(false)
@@ -133,17 +133,11 @@ enum class Op {
 
 class TreeWrapper {
 public:
-    TreeWrapper(string filename)
-    {
-        currPos = 0;
-        parseCluster(filename);
-        Cluster clust(addrs[currPos]);
-        *tree = clust.getTree();
-    }
-
-    ~TreeWrapper() {
-        delete tree;
-    }
+    TreeWrapper(std::vector<string> ips, Tree t)
+        : tree(t)
+        , addrs(ips)
+        , currPos(0)
+    { }
 
     void
     retryOp(Op op, const string& name, string& contents) {
@@ -152,13 +146,13 @@ public:
             string opStr;
             if (op == Op::Read) {
                 opStr = "Read";
-                res = tree->read(name, contents);
+                res = tree.read(name, contents);
             } else if (op == Op::Write) {
                 opStr = "Write";
-                res = tree->write(name, contents);
+                res = tree.write(name, contents);
             } else if (op == Op::Rm) {
                 opStr = "Remove";
-                res = tree->removeFile(name);
+                res = tree.removeFile(name);
             }
 
             if (res.status != LogCabin::Client::Status::OK) {
@@ -175,30 +169,39 @@ public:
         string str = "";
         retryOp(op, name, str);
     }
-private:
-    Tree* tree;
-    std::vector<string> addrs;
-    int currPos;
 
-    void
+
+    static std::vector<string>
     parseCluster(string filename) {
-        addrs.clear();
+        std::vector<string> addrs;
         ifstream f(filename);
         string ignore;
-        while (f.str() != "") {
+        while (!f.eof()) {
             f >> ignore; //node name
             f >> ignore; //public ip
             string ip;
             f >> ip; //private ip (the one we want)
             addrs.push_back(ip + ":61023"); //default logcabin port
         }
+        return addrs;
     }
+
+    static TreeWrapper
+    newTreeWrapper(const string& filename) {
+        auto addrs = parseCluster(filename);
+        Cluster clust(addrs[0]);
+        return TreeWrapper(addrs, clust.getTree());
+    }
+private:
+    Tree tree;
+    std::vector<string> addrs;
+    int currPos;
 
     void
     rotateTree() {
         currPos++;
         Cluster clust(addrs[currPos]);
-        delete tree;
+        //delete tree;
         tree = clust.getTree();
     }
 };
@@ -239,21 +242,22 @@ writeInt(int i, TreeWrapper tree, bool verbose) {
     tree.retryOp(Op::Read, "/intlist", contents);
     if (verbose)
         std::cout << "Contents so far: " << contents << std::endl;
-    std::stringstream ss;
+    stringstream ss;
     ss << i << ' ';
-    tree.retryOp(Op::Write, "/intlist", contents + ss.str());
+    contents += ss.str();
+    tree.retryOp(Op::Write, "/intlist", contents);
 }
 
 int
 main(int argc, char** argv)
 {
     OptionParser options(argc, argv);
-    TreeWrapper tree(options.clusterFile);
+    TreeWrapper tree = TreeWrapper::newTreeWrapper(options.clusterFile);
     tree.retryOp(Op::Write, "/intlist");
     if (options.duration == 0) {
         cout << "Writing " << options.length << " ints" << endl;
         for (int i = 0; i < options.length; i++) {
-            writeInt(i, tree, options.verbose, clustAddrs);
+            writeInt(i, tree, options.verbose);
         }
     } else {
         cout << "Writing ints for " << options.duration << " seconds" << endl;
@@ -262,7 +266,7 @@ main(int argc, char** argv)
         time_t currTime = startTime;
         int i = 0;
         while (currTime <= startTime + options.duration) {
-            writeInt(i, tree, options.verbose, clustAddrs);
+            writeInt(i, tree, options.verbose);
             i++;
             time(&currTime);
         }
