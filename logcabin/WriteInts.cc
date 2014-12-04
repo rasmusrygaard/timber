@@ -216,9 +216,10 @@ verifyContents(std::string contents, int length) {
     int dupes = 0;
     std::set<int> actual;
     stringstream ss(contents);
-    while (ss.str() != " ") {
-        int i;
+    while (ss) {
+        int i = -1;
         ss >> i;
+        if (i < 0) break;
         if (actual.find(i) != actual.end()) {
             dupes++;
         } else {
@@ -232,8 +233,8 @@ verifyContents(std::string contents, int length) {
 
     cout << "Elements in result: " << actual.size() << endl;
     cout << "Expected size: " << length << endl;
-    cout << "Writes Dropped: " << dropPct << endl;
-    cout << "Ghost Writes: " << dupePct << endl;
+    cout << "Writes Dropped: " << dropPct << '%' << endl;
+    cout << "Ghost Writes: " << dupePct << '%' << endl;
 }
 
 void
