@@ -8,7 +8,7 @@
 
 #include "server/etcd.h"
 #include "util.h"
-#include "Config.h"
+#include "config.h"
 
 const std::string ETCD_SCRIPTS_DIR = "~/timber/etcd/";
 const std::string ETCD_DIR = "~/etcd/";
