@@ -11,14 +11,18 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
+*/
 
 #include <cassert>
 #include <getopt.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <ctime>
+#include <set>
+#include <vector>
+
 
 #include "LogCabin/Client.h"
 
@@ -30,6 +34,8 @@ using LogCabin::Client::Result;
 using std::string;
 using std::cout;
 using std::endl;
+using std::ifstream;
+using 
 
 /**
  * Parses argv for the main function.
@@ -111,7 +117,7 @@ class OptionParser {
 
     int& argc;
     char**& argv;
-    std::string cluster;
+    std::string clusterFile;
     int length;
     int duration;
     bool verbose;
@@ -128,27 +134,31 @@ enum class Op {
 class TreeWrapper {
 public:
     TreeWrapper(string filename)
-        : currPos(0)
     {
+        currPos = 0;
         parseCluster(filename);
         Cluster clust(addrs[currPos]);
-        tree = clust.getTree();
+        *tree = clust.getTree();
+    }
+
+    ~TreeWrapper() {
+        delete tree;
     }
 
     void
-    retryOp(Op op, const string& name, string& contents = "") {
+    retryOp(Op op, const string& name, string& contents) {
         while (true) {
             Result res;
             string opStr;
-            if (op == Read) {
+            if (op == Op::Read) {
                 opStr = "Read";
-                res = tree.read(name, contents);
-            } else if (op == Write) {
+                res = tree->read(name, contents);
+            } else if (op == Op::Write) {
                 opStr = "Write";
-                res = tree.write(name, contents);
-            } else if (op == Rm) {
+                res = tree->write(name, contents);
+            } else if (op == Op::Rm) {
                 opStr = "Remove";
-                res = tree.removeFile(name);
+                res = tree->removeFile(name);
             }
 
             if (res.status != LogCabin::Client::Status::OK) {
@@ -159,8 +169,14 @@ public:
             }
         }
     }
+
+    void
+    retryOp(Op op, const string& name) {
+        string str = "";
+        retryOp(op, name, str);
+    }
 private:
-    Tree tree;
+    Tree* tree;
     std::vector<string> addrs;
     int currPos;
 
@@ -182,6 +198,7 @@ private:
     rotateTree() {
         currPos++;
         Cluster clust(addrs[currPos]);
+        delete tree;
         tree = clust.getTree();
     }
 };
@@ -217,24 +234,22 @@ verifyContents(std::string contents, int length) {
 }
 
 void
-writeInt(int i, Tree tree, bool verbose) {
+writeInt(int i, TreeWrapper tree, bool verbose) {
     string contents;
-    retryOp(tree, Read, "/intlist", contents);
+    tree.retryOp(Op::Read, "/intlist", contents);
     if (verbose)
         std::cout << "Contents so far: " << contents << std::endl;
     std::stringstream ss;
     ss << i << ' ';
-    retryOp(tree, Write, "/intlist", contents + ss.str());
+    tree.retryOp(Op::Write, "/intlist", contents + ss.str());
 }
 
 int
 main(int argc, char** argv)
 {
     OptionParser options(argc, argv);
-    auto clustAddrs = parseCluster(options.clusterFile);
-    Cluster cluster(clustAddrs[0]);
-    Tree tree = cluster.getTree();
-    retryOp(tree, Write, "/intlist");
+    TreeWrapper tree(options.clusterFile);
+    tree.retryOp(Op::Write, "/intlist");
     if (options.duration == 0) {
         cout << "Writing " << options.length << " ints" << endl;
         for (int i = 0; i < options.length; i++) {
@@ -254,8 +269,8 @@ main(int argc, char** argv)
         options.length = i;
     }
     string contents;
-    retryOp(clustAddrs, tree, Read, "/intlist", contents);
-    retryOp(clustAddrs, tree, Rm, "/intlist");
+    tree.retryOp(Op::Read, "/intlist", contents);
+    tree.retryOp(Op::Rm, "/intlist");
     verifyContents(contents, options.length);
     return 0;
 }
