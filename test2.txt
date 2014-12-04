@@ -1,4 +1,4 @@
-sleep 5
+sleep 10
 snubnodes 1
 sleep 10
 snubnodes 2
@@ -6,9 +6,17 @@ sleep 10
 snubnodes 3
 sleep 10
 snubnodes 2
-sleep 5
+sleep 10
 snubnodes 3
 snubnodes 2
 snubnodes 1
+sleep 10
+snubnodes 3
+sleep 4
+snubnodes 2
+sleep 4
+snubnodes 1
+sleep 2
+heal_cluster
 sleep 10
 exit

@@ -20,11 +20,11 @@ def instance_private_ips(conn, ids):
 
 
 def launch_instances(conn, n):
-    reservation = conn.run_instances('ami-fecd5696',
+    reservation = conn.run_instances('ami-84c259ec',
                                      min_count=n,
                                      max_count=n,
                                      key_name='224WKeys',
-                                     instance_type="m3.medium",
+                                     instance_type="t2.micro",
                                      subnet_id='subnet-191d4231',
                                      security_group_ids=['sg-721a0417'] ) # 'timber'
     try:
