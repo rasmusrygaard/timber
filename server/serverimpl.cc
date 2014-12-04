@@ -24,7 +24,7 @@ api_v1_server::install(std::unique_ptr<ClusterDesc> cluster)
         Config::addHosts(cluster, "logcabin", false);
         LogCabinWrapper::initialize(cluster);
     } else if (cluster->type == EtcdType) {
-        /* Empty */
+        Etcd::initialize(cluster);
     }
     *res = true; //TODO: failure modes?
     return res;
