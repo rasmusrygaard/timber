@@ -4,7 +4,7 @@ require 'set'
 config = open('timber.config').readlines.map(&:rstrip)
 private_ips = config.map { |line| line.split[2] }
 
-clients = private_ips.map { |ip| Etcd.client(host: ip, port: 4001, read_timeout: 1) }
+clients = private_ips.map { |ip| puts ip; Etcd.client(host: ip, port: 4001, read_timeout: 1, allow_redirect: false) }
 start = Time.now
 clients[0].set('/result', value: [0].to_s)
 acked = [0]
