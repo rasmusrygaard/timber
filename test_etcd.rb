@@ -19,10 +19,13 @@ clients.cycle do |client|
       client.set('/result', value: (arr + [to_write]).to_s)
       puts "#{ Time.now } ACK host=#{ client.host } value=#{ to_write }"
       acked << to_write
+    rescue Net::HTTPFatalError
+      puts "#{ Time.now } PARTITIONED host=#{ client.host } value=#{ to_write }"
+      break # Break out of the while loop to move to the next client
     rescue Net::ReadTimeout
       puts "#{ Time.now } TIMEOUT host=#{ client.host } value=#{ to_write }"
       break # Break out of the while loop to move to the next client
-    rescue Etcd::TestFailed
+    rescue Net::HTTPRetriableError
       puts "#{ Time.now } REJECT host=#{ client.host } value=#{ to_write }"
       break # Break out of the while loop to move to the next client
     end
@@ -30,7 +33,7 @@ clients.cycle do |client|
   break if (Time.now - start) >= DURATION
 end
 
-arr = JSON.parse(client.get('/result').value)
+arr = JSON.parse(clients[0].get('/result').value)
 puts "Elements in result: #{ arr.size }"
 expected_size = acked.size
 puts "Expected size: #{ expected_size }"

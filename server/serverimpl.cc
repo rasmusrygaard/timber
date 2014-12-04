@@ -155,3 +155,18 @@ api_v1_server::healPartition(std::unique_ptr<int> arg)
 
   return res;
 }
+
+std::unique_ptr<bool>
+api_v1_server::slowNetwork(std::unique_ptr<bool> isSlow)
+{
+    std::unique_ptr<bool> res(new bool);
+
+    if (*isSlow) {
+        Config::slow_network();
+    } else {
+        Config::heal_network();
+    }
+
+    *res = true;
+    return res;
+}

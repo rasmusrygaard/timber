@@ -233,6 +233,28 @@ struct api_v1 {
     }
   };
 
+  struct slowNetwork_t {
+    using interface_type = api_v1;
+    static constexpr std::uint32_t proc = 5;
+    static constexpr const char *proc_name = "slowNetwork";
+    using arg_type = bool;
+    using arg_wire_type = bool;
+    using res_type = bool;
+    using res_wire_type = bool;
+    
+    template<typename C, typename...A> static auto
+    dispatch(C &&c, A &&...a) ->
+    decltype(c.slowNetwork(std::forward<A>(a)...)) {
+      return c.slowNetwork(std::forward<A>(a)...);
+    }
+    
+    template<typename C, typename DropIfVoid, typename...A> static auto
+    dispatch_dropvoid(C &&c, DropIfVoid &&d, A &&...a) ->
+    decltype(c.slowNetwork(std::forward<DropIfVoid>(d), std::forward<A>(a)...)) {
+      return c.slowNetwork(std::forward<DropIfVoid>(d), std::forward<A>(a)...);
+    }
+  };
+
   template<typename T, typename...A> static bool
   call_dispatch(T &&t, std::uint32_t proc, A &&...a) {
     switch(proc) {
@@ -247,6 +269,9 @@ struct api_v1 {
       return true;
     case 4:
       t.template dispatch<healPartition_t>(std::forward<A>(a)...);
+      return true;
+    case 5:
+      t.template dispatch<slowNetwork_t>(std::forward<A>(a)...);
       return true;
     }
     return false;
@@ -277,6 +302,12 @@ struct api_v1 {
     healPartition(_XDRARGS &&..._xdr_args) ->
     decltype(this->_XDRBASE::template invoke<healPartition_t>(_xdr_args...)) {
       return this->_XDRBASE::template invoke<healPartition_t>(_xdr_args...);
+    }
+
+    template<typename..._XDRARGS> auto
+    slowNetwork(_XDRARGS &&..._xdr_args) ->
+    decltype(this->_XDRBASE::template invoke<slowNetwork_t>(_xdr_args...)) {
+      return this->_XDRBASE::template invoke<slowNetwork_t>(_xdr_args...);
     }
   };
 };

@@ -27,6 +27,10 @@ public:
 
   static bool healNodes(const std::vector<std::string>& nodes);
 
+  static void slow_network();
+
+  static void heal_network();
+
 };
 
 #endif

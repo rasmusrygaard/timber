@@ -120,6 +120,16 @@ Client_Partition(Client* client,
 }
 
 void
+Client_Slow_Network(Client* client) {
+    client->slowNetwork();
+}
+
+void
+Client_Heal_Network(Client* client) {
+    client->healNetwork();
+}
+
+void
 Partition(const std::vector<Client*> clients,
           const std::vector<int>& group1,
           const std::vector<int>& group2) {
@@ -127,6 +137,31 @@ Partition(const std::vector<Client*> clients,
     std::vector<std::thread> threads(clients.size());
     for (int i = 0; i < threads.size(); ++i) {
         threads[i] = std::thread(&Client_Partition, clients[i], group1, group2);
+    }
+
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i].join();
+    }
+}
+
+
+void
+Slow(const std::vector<Client*> clients) {
+    std::vector<std::thread> threads(clients.size());
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i] = std::thread(&Client_Slow_Network, clients[i]);
+    }
+
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i].join();
+    }
+}
+
+void
+Heal(const std::vector<Client*> clients) {
+    std::vector<std::thread> threads(clients.size());
+    for (int i = 0; i < threads.size(); ++i) {
+        threads[i] = std::thread(&Client_Heal_Network, clients[i]);
     }
 
     for (int i = 0; i < threads.size(); ++i) {
@@ -223,6 +258,15 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
     Partition(clients, group1, group2);
 }
 
+void
+Cmd_Slow(int argc, const char* argv[]) {
+    Slow(clients);
+}
+
+void
+Cmd_Heal(int argc, const char* argv[]) {
+    Heal(clients);
+}
 
 void
 DispatchCommand(char *buf)
@@ -262,6 +306,10 @@ DispatchCommand(char *buf)
         Cmd_SnubNodes(argc, (const char**)argv);
     } else if (cmd == "heal_cluster") {
         Cmd_Heal_Cluster(argc, (const char**)argv);
+    } else if (cmd == "slow") {
+        Cmd_Slow(argc, (const char**)argv);
+    } else if (cmd == "heal") {
+        Cmd_Heal(argc, (const char**)argv);
     } else if (cmd == "sleep") {
         int time = std::stoi(argv[1]);
         sleep(time);

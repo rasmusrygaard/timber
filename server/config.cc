@@ -52,7 +52,7 @@ Config::get_hostname()
 bool Config::partitionNodes(const std::vector<std::string>& nodes, const bool is_partition) {
   //Stop accepting traffic from these node names
   if (is_partition) {
-    system("sudo iptables -F");
+      system("sudo iptables -F");
     for (auto ip : nodes) {
       system(("sudo iptables -A INPUT -s " + ip + " -j DROP").c_str());
     }
@@ -79,4 +79,14 @@ bool Config::healNodes(const std::vector<std::string>& nodes) {
   return false;
   //when to return false?
 
+}
+
+void
+Config::slow_network() {
+    system("sudo tc qdisc add dev eth0 root netem delay 20ms 10ms distribution normal");
+}
+
+void
+Config::heal_network() {
+    system("sudo tc qdisc del dev eth0 root");
 }

@@ -146,6 +146,24 @@ Client::heal_cluster(const int num_nodes)
 
     if (*r == false)
         return false;
-    
+
+    return true;
+}
+
+
+bool
+Client::slowNetwork()
+{
+    auto r = client->slowNetwork(true);
+
+    return true;
+}
+
+
+bool
+Client::healNetwork()
+{
+    client->slowNetwork(false);
+
     return true;
 }

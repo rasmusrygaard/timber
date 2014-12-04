@@ -29,7 +29,8 @@ program server_api {
   version api_v1 {
         bool install(ClusterDesc) = 1;
         bool run(ClusterDesc) = 2;
-		bool makePartition(Partition) = 3;
-		bool healPartition(int) = 4;
+	bool makePartition(Partition) = 3;
+        bool healPartition(int) = 4;
+        bool slowNetwork(bool) = 5;
   } = 1;
 } = 0x40048086;

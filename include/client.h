@@ -90,8 +90,12 @@ public:
     bool run(const RaftImplementation& implementation, std::vector<Node> nodes, const int id);
 
     bool makePartition(std::vector<int> gr1, std::vector<int> gr2);
-    
+
     bool heal_cluster(const int num_nodes);
+
+    bool slowNetwork(void);
+
+    bool healNetwork(void);
 
 private:
     xdr::srpc_client<api_v1> *client;
