@@ -35,8 +35,6 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
        << "-advertise-client-urls http://" << public_ip << ":" << ETCD_CLIENT_PORT << " "
        << "-listen-client-urls http://0.0.0.0:" << ETCD_CLIENT_PORT << " "
        << "-initial-cluster " << joinPrivateIPs(cluster) << " "
-       << "-http-write-timeout 1 " << " "
-       << "-http-read-timeout 1 " << " "
        << "-initial-cluster-state new &> etcd_server.log";
     Util::run_cmd_async(ss.str());
     std::cout << "Done with etcd server on node " << cluster->nodeId << std::endl;
