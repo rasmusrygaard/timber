@@ -35,7 +35,7 @@ Etcd::startServer(const std::unique_ptr<ClusterDesc>& cluster) {
        << "-peer-bind-addr " << private_ip << ":" << ETCD_PEER_PORT << " "
        << "-addr " << public_ip << ":" << ETCD_CLIENT_PORT << " "
        << "-bind-addr 0.0.0.0:" << ETCD_CLIENT_PORT << " ";
-    if (cluster->nodeId == 1) {
+    if (cluster->nodeId != 1) {
         ss << "-peers " << joinPrivateIPs(cluster) << " ";
     }
     ss << "-http-write-timeout 1 " << " "
