@@ -4,11 +4,12 @@ require 'set'
 config = open('timber.config').readlines.map(&:rstrip)
 private_ips = config.map { |line| line.split[2] }
 
-clients = private_ips.map { |ip| Etcd.client(host: ip, port: 4001, allow_redirect: true) }
+clients = private_ips.map { |ip| Etcd.client(host: ip, port: 4001) }
 count = 0
 start = Time.now
-arr = JSON.parse(client.set('/result').value)
-DURATION = 50 # second
+client.set('/result', value: [].to_s)
+arr = []
+DURATION = 100 # second
 clients.cycle do |client|
   while (Time.now - start) < DURATION
     begin
