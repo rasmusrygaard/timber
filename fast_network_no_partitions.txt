@@ -1,0 +1,3 @@
+heal_cluster
+sleep 300
+exit

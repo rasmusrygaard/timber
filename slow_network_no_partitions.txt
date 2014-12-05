@@ -1,0 +1,5 @@
+heal_cluster
+slow
+sleep 300
+heal
+exit
