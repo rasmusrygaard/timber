@@ -231,10 +231,12 @@ verifyContents(std::string contents, int length) {
     float dropPct = 100 * (float) drops / length;
     float dupePct = 100 * (float) dupes / length;
 
-    cout << "Elements in result: " << actual.size() << endl;
-    cout << "Expected size: " << length << endl;
-    cout << "Writes Dropped: " << dropPct << '%' << endl;
-    cout << "Ghost Writes: " << dupePct << '%' << endl;
+    cout << "|A|: " << length << endl;
+    cout << "|R|: " << actual.size() << endl;
+    cout << "|S|: " << dupes << endl;
+    cout << "|D|: " << drops << endl;
+    cout << "|D|/|A|: " << dropPct << endl;
+    cout << "|S|/|A|: " << dupePct << endl;
 }
 
 void

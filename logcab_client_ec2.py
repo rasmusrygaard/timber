@@ -19,7 +19,7 @@ def instance_private_ips(conn, ids):
     return [ inst.private_ip_address for inst in launched_instances ]
 
 def launch_instances(conn, n):
-    reservation = conn.run_instances('ami-9eaa1cf6',
+    reservation = conn.run_instances('ami-84c259ec',
                                      min_count=n,
                                      max_count=n,
                                      key_name='224WKeys',
@@ -70,6 +70,11 @@ def run_script(conn, instance_ids, scriptfile):
     for process in processes:
         process.wait()
 
+def send_conf(ip, name="timber.config"):
+    cmd = "/usr/bin/scp -i 224WKeys.pem " + name + " ubuntu@" + ip + ":~/timber.config"
+    proc = subprocess.Popen(cmd)
+    proc.wait()
+
 if not os.path.isfile('client.config'):
     print "Create connection"
     conn = create_connection()
@@ -82,5 +87,7 @@ if not os.path.isfile('client.config'):
         f.write(id + '\t' + public_ip + '\t' + private_ip + '\n')
     print 'Running script client_init.sh'
     run_script(conn, ids, 'logcabin/client_init.sh')
+    (_,ip,_) = info[0]
+    send_conf(ip)
 else:
     print "Client instance already exists (in client.config), use that or kill it with kill_ec2.py"
