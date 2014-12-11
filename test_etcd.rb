@@ -4,17 +4,8 @@ require 'set'
 config = open('timber.config').readlines.map(&:rstrip)
 private_ips = config.map { |line| line.split[2] }
 
-clients = private_ips.map { |ip| puts ip; Etcd.client(host: ip, port: 4001, read_timeout: 1, allow_redirect: true) }
-clients.each_with_index do |client, i|
-  begin
-    if client.leader[client.host]
-      client.set('/result', value: [0].to_s)
-    end
-  rescue Exception => e
-    print e
-  end
-end
-sleep 2
+clients = private_ips.map { |ip| Etcd.client(host: ip, port: 4001, read_timeout: 1, allow_redirect: true) }
+
 start = Time.now
 acked = [0]
 to_write = 1
@@ -58,3 +49,20 @@ puts "D: #{ (acked - result).join(', ') }"
 puts "|D|: #{ (acked - result).size }"
 puts "|D|/|A|: #{ (acked - result).size / acked.size.to_f }"
 puts "|S|/|A|: #{ (result - acked).size / acked.size.to_f }"
+
+File.open("result_#{Time.now}.txt", "w+") do |f|
+  f.puts("Acked\t#{ acked.join(', ') }\n")
+  f.puts("Result\t#{ result.join(', ') }\n")
+  f.puts("Dropped\t#{ (result - acked).join(', ') }\n")
+  f.puts("Survivors\t#{ (acked - result).join(', ') }\n")
+end
+
+clients.each_with_index do |client, i|
+  begin
+    if client.leader[client.host]
+      client.set('/result', value: [0].to_s)
+    end
+  rescue Exception => e
+    print e
+  end
+end
