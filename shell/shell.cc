@@ -30,7 +30,7 @@ readConfig() {
     std::ifstream f("timber.config");
     std::vector<Node> result;
     std::string id, public_ip, private_ip;
-    while (f >> id >> private_ip >> public_ip) {
+    while (f >> id >> public_ip >> private_ip) {
         Node n = { id, public_ip, private_ip };
         result.push_back(n);
     }
