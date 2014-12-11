@@ -30,7 +30,7 @@ readConfig() {
     std::ifstream f("timber.config");
     std::vector<Node> result;
     std::string id, public_ip, private_ip;
-    while (f >> id >> public_ip >> private_ip) {
+    while (f >> id >> private_ip >> public_ip) {
         Node n = { id, public_ip, private_ip };
         result.push_back(n);
     }
@@ -270,6 +270,7 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
         group1.push_back(i);
     }
     group2.push_back(0);
+    LogHealCluster();
     Partition(clients, group1, group2);
 }
 
@@ -376,7 +377,7 @@ main(int argc, const char *argv[])
 
         for (Node n : nodes) {
             clients.push_back(new Client());
-            clients[clients.size() - 1]->open(n.public_ip);
+            clients[clients.size() - 1]->open(n.private_ip);
         }
     } catch (exception &e) {
         cout << "Connection failed!" << endl;
