@@ -169,6 +169,18 @@ Heal(const std::vector<Client*> clients) {
     }
 }
 
+void LogPartition(const std::vector<int>& g1, const std::vector<int>& g2) {
+    cout << time(NULL) << " PARTITIONED left=";
+    std::copy(g1.begin(), g1.end(), std::ostream_iterator<int>(std::cout,","));
+    cout << " right=";
+    std::copy(g2.begin(), g2.end(), std::ostream_iterator<int>(std::cout,","));
+    cout << endl;
+}
+
+void LogHealCluster() {
+    cout << time(NULL) << " HEALED " << endl;
+}
+
 
 /*
  * Partitions the Network in half. I.e. If there are nodes
@@ -193,6 +205,7 @@ Cmd_Partition(int argc, const char* argv[])
     for(int i=nodes.size()/2 + 1; i<=nodes.size(); i++) {
         group2.push_back(i);
     }
+    LogPartition(group1, group2);
     Partition(clients, group1, group2);
 }
 
@@ -228,6 +241,8 @@ Cmd_SnubNodes(int argc, const char* argv[])
             group2.push_back(i);
         }
     }
+
+    LogPartition(group1, group2);
     Partition(clients, group1, group2);
 }
 
@@ -260,11 +275,13 @@ Cmd_Heal_Cluster(int argc, const char* argv[])
 
 void
 Cmd_Slow(int argc, const char* argv[]) {
+    cout << time(NULL) << " SLOW " << endl;
     Slow(clients);
 }
 
 void
 Cmd_Heal(int argc, const char* argv[]) {
+    cout << time(NULL) << " NORMAL " << endl;
     Heal(clients);
 }
 
